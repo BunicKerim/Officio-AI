@@ -2,104 +2,102 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Workflow AI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workflow AI – Text zusammenfassen</title>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f4f4f4;
+      background: #f6f6f6;
+      padding: 40px;
     }
 
-    header {
-      background: #111;
-      color: #fff;
-      padding: 80px 20px;
-      text-align: center;
-    }
-
-    section {
-      padding: 60px 20px;
-      text-align: center;
-      background: #fff;
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 6px;
     }
 
     textarea {
-      width: 80%;
-      max-width: 700px;
-      height: 140px;
+      width: 100%;
+      height: 220px;
       padding: 10px;
-      font-size: 16px;
+      font-size: 14px;
     }
 
     button {
       margin-top: 15px;
-      padding: 12px 24px;
-      font-size: 16px;
+      padding: 10px 20px;
+      font-size: 15px;
       cursor: pointer;
     }
 
-    pre {
-      margin-top: 20px;
-      background: #eee;
-      padding: 20px;
+    .result {
+      margin-top: 25px;
+      padding: 15px;
+      background: #efefef;
       white-space: pre-wrap;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
+    }
+
+    .error {
+      margin-top: 20px;
+      color: red;
     }
   </style>
 </head>
-
 <body>
 
-<header>
-  <h1>Workflow AI</h1>
-  <p>Intelligente KI-Workflows für dein Büro</p>
-</header>
+  <div class="container">
+    <h1>Workflow AI</h1>
+    <p>Sachliche Textzusammenfassung (Büroassistent)</p>
 
-<section>
-  <h2>Text zusammenfassen</h2>
+    <textarea id="inputText" placeholder="Text hier einfügen..."></textarea>
 
-  <textarea id="inputText" placeholder="Text hier eingeben..."></textarea>
-  <br />
+    <br />
+    <button onclick="summarize()">Zusammenfassen</button>
 
-  <button onclick="summarize()">Zusammenfassen</button>
+    <div id="result" class="result" style="display:none;"></div>
+    <div id="error" class="error"></div>
+  </div>
 
-  <pre id="output"></pre>
-</section>
+  <script>
+    async function summarize() {
+      const text = document.getElementById("inputText").value;
+      const resultBox = document.getElementById("result");
+      const errorBox = document.getElementById("error");
 
-<script>
-async function summarize() {
-  const text = document.getElementById("inputText").value;
+      resultBox.style.display = "none";
+      errorBox.innerText = "";
 
-  if (!text.trim()) {
-    alert("Bitte Text eingeben");
-    return;
-  }
+      if (!text.trim()) {
+        errorBox.innerText = "Bitte Text eingeben.";
+        return;
+      }
 
-  try {
-    const response = await fetch("http://127.0.0.1:8000/summarize", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ text })
-    });
+      try {
+        const response = await fetch("http://127.0.0.1:8000/summarize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text })
+        });
 
-    const data = await response.json();
-    document.getElementById("output").innerText = data.result;
+        if (!response.ok) {
+          throw new Error("Backend-Fehler");
+        }
 
-  } catch (error) {
-    document.getElementById("output").innerText =
-      "Fehler beim Aufruf des Backends";
-    console.error(error);
-  }
-}
-</script>
+        const data = await response.json();
+
+        resultBox.innerText = data.result;
+        resultBox.style.display = "block";
+
+      } catch (err) {
+        errorBox.innerText = "Fehler beim Aufruf des Backends";
+      }
+    }
+  </script>
 
 </body>
 </html>
