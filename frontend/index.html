@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Workflow AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+
+    header {
+      background: #111;
+      color: #fff;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    section {
+      padding: 60px 20px;
+      text-align: center;
+      background: #fff;
+    }
+
+    textarea {
+      width: 80%;
+      max-width: 700px;
+      height: 140px;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    pre {
+      margin-top: 20px;
+      background: #eee;
+      padding: 20px;
+      white-space: pre-wrap;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Workflow AI</h1>
+  <p>Intelligente KI-Workflows für dein Büro</p>
+</header>
+
+<section>
+  <h2>Text zusammenfassen</h2>
+
+  <textarea id="inputText" placeholder="Text hier eingeben..."></textarea>
+  <br />
+
+  <button onclick="summarize()">Zusammenfassen</button>
+
+  <pre id="output"></pre>
+</section>
+
+<script>
+async function summarize() {
+  const text = document.getElementById("inputText").value;
+
+  if (!text.trim()) {
+    alert("Bitte Text eingeben");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/summarize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await response.json();
+    document.getElementById("output").innerText = data.result;
+
+  } catch (error) {
+    document.getElementById("output").innerText =
+      "Fehler beim Aufruf des Backends";
+    console.error(error);
+  }
+}
+</script>
+
+</body>
+</html>
