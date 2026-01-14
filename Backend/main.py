@@ -1,12 +1,9 @@
 import os
 from fastapi import FastAPI
 from pydantic import BaseModel
-from dotenv import load_dotenv
 from openai import OpenAI
 from fastapi.middleware.cors import CORSMiddleware
 
-# .env laden
-load_dotenv()
 
 # OpenAI Client initialisieren
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
