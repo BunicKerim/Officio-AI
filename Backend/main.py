@@ -41,14 +41,30 @@ class EmailReplyInput(BaseModel):
 
 @app.post("/summarize")
 def summarize(input: SummaryInput):
+
+    focus_block = ""
+    if input.focus:
+        focus_block = f"""
+WICHTIGE VORGABEN DES NUTZERS:
+Die folgenden Anweisungen sind strikt einzuhalten.
+Sie haben Vorrang vor Standardformat und Stil.
+
+{input.focus}
+"""
+
     prompt = f"""
-Du bist ein sachlicher Büroassistent.
+Du bist ein sachlicher, präziser Büroassistent.
 
 AUFGABE:
-Fasse den folgenden Text sachlich zusammen.
+Fasse den folgenden Text entsprechend den Vorgaben zusammen.
 
-FORMAT:
-Klarer Fließtext ohne Zusatzinformationen.
+{focus_block}
+
+STANDARD-FORMAT (nur falls keine Vorgaben gemacht wurden):
+- Klar
+- Übersichtlich
+- Sachlich
+- Keine unnötigen Details
 
 TEXT:
 {input.text}
@@ -56,6 +72,7 @@ TEXT:
 
     result = call_ai(ROLE, prompt)
     return {"result": result}
+
 
 
 @app.post("/email-reply")

@@ -46,29 +46,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- SUMMARY ---------- */
 
-document.getElementById("summarizeBtn").addEventListener("click", async () => {
-    const input = document.getElementById("inputText").value.trim();
-    if (!input) return;
+    document.getElementById("summarizeBtn").addEventListener("click", async () => {
+        const input = document.getElementById("inputText").value.trim();
+        const focus = document.getElementById("summaryFocus").value.trim();
 
-    const output = document.getElementById("output");
+        if (!input) return;
 
-    // 👇 Klarer Status-Text
-    output.textContent = "Zusammenfassung wird erstellt …";
+        const output = document.getElementById("output");
+        output.textContent = "Zusammenfassung wird erstellt …";
 
-    try {
-        const res = await fetch("https://officio-ai-lybv.onrender.com/summarize", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: input })
-        });
+        try {
+            const res = await fetch("https://officio-ai-lybv.onrender.com/summarize", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    text: input,
+                    focus: focus
+                })
+            });
 
-        const data = await res.json();
-        output.textContent = data.result ?? "Keine Antwort erhalten.";
-    } catch (err) {
-        output.textContent = "Fehler bei der Verarbeitung.";
-        console.error(err);
-    }
-});
+            const data = await res.json();
+            output.textContent = data.result ?? "Keine Antwort erhalten.";
+        } catch (err) {
+            output.textContent = "Fehler bei der Verarbeitung.";
+            console.error(err);
+        }
+    });
 
     /* ---------- EMAIL ---------- */
 
@@ -80,10 +83,10 @@ document.getElementById("summarizeBtn").addEventListener("click", async () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-    original_email: document.getElementById("emailOriginal").value,
-    keywords: document.getElementById("emailKeywords").value,
-    style: document.getElementById("emailStyle").value
-})
+                original_email: document.getElementById("emailOriginal").value,
+                keywords: document.getElementById("emailKeywords").value,
+                style: document.getElementById("emailStyle").value
+            })
         });
 
         const data = await res.json();
@@ -111,17 +114,17 @@ document.getElementById("summarizeBtn").addEventListener("click", async () => {
         vy: (Math.random() - 0.5) * 0.4
     }));
 
-function colors() {
-    return document.body.classList.contains("dark")
-        ? {
-            p: "rgba(180,210,255,0.95)",
-            l: "rgba(180,210,255,0.35)"
-        }
-        : {
-            p: "rgba(230,235,255,0.95)",
-            l: "rgba(230,235,255,0.35)"
-        };
-}
+    function colors() {
+        return document.body.classList.contains("dark")
+            ? {
+                p: "rgba(180,210,255,0.95)",
+                l: "rgba(180,210,255,0.35)"
+            }
+            : {
+                p: "rgba(230,235,255,0.95)",
+                l: "rgba(230,235,255,0.35)"
+            };
+    }
 
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);

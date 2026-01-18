@@ -38,12 +38,12 @@
     <section id="featureGrid" class="feature-grid">
         <div class="feature-card" data-tool="tool-summary">
             <h3>📝 Zusammenfassen</h3>
-            <p>Fasst lange Texte, Bücher, Zitate strukturiert zusammen und hebt die wichtigsten Punkte hervor. </p>
+            <p>Fasst lange Texte strukturiert zusammen und hebt die wichtigsten Punkte hervor.</p>
         </div>
 
         <div class="feature-card" data-tool="tool-email">
             <h3>✉️ E-Mail Antwort</h3>
-            <p>Auf Kundenanfragen automatisch professionelle Antworten erstellen, wobei die Art der Antwort angepasst werden kann.</p>
+            <p>Auf Kundenanfragen automatisch professionelle Antworten erstellen.</p>
         </div>
     </section>
 
@@ -53,6 +53,12 @@
         <h2>Text zusammenfassen</h2>
 
         <textarea id="inputText" placeholder="Text hier einfügen..."></textarea>
+
+        <!-- 🔽 NEU: Fokus / Stichwörter -->
+        <textarea
+            id="summaryFocus"
+            placeholder="Stichwörter / Vorgaben (z. B. kurz, Bulletpoints, max. 3 Sätze, Management)"
+        ></textarea>
 
         <button id="summarizeBtn">Zusammenfassen</button>
 
