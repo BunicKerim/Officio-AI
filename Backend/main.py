@@ -39,32 +39,52 @@ class EmailReplyInput(BaseModel):
 
 # ========= ENDPOINTS =========
 
+import re
+
 @app.post("/summarize")
 def summarize(input: SummaryInput):
 
     focus_block = ""
-    if input.focus:
-        focus_block = f"""
-WICHTIGE VORGABEN DES NUTZERS:
-Die folgenden Anweisungen sind strikt einzuhalten.
-Sie haben Vorrang vor Standardformat und Stil.
+    technical_rules = ""
 
+    if input.focus and input.focus.strip():
+        focus_block = f"""
+BENUTZER-VORGABEN (STRIKT):
 {input.focus}
+"""
+
+        # 🔍 Dynamische Satzanzahl erkennen
+        match = re.search(r'(\d+)\s*satz', input.focus.lower())
+        if match:
+            max_sentences = match.group(1)
+
+            technical_rules += f"""
+TECHNISCHE REGEL:
+Die Antwort darf aus maximal {max_sentences} vollständigen Sätzen bestehen.
+Ein Satz endet mit Punkt, Fragezeichen oder Ausrufezeichen.
+Überschreite diese Anzahl unter keinen Umständen.
+"""
+
+        # 🔍 Bulletpoints erkennen
+        if "bullet" in input.focus.lower() or "stichpunkt" in input.focus.lower():
+            technical_rules += """
+FORMAT-REGEL:
+Verwende ausschließlich Bulletpoints.
+Keine Fließtexte.
 """
 
     prompt = f"""
 Du bist ein sachlicher, präziser Büroassistent.
 
 AUFGABE:
-Fasse den folgenden Text entsprechend den Vorgaben zusammen.
+Fasse den folgenden Text zusammen.
 
 {focus_block}
+{technical_rules}
 
-STANDARD-FORMAT (nur falls keine Vorgaben gemacht wurden):
-- Klar
-- Übersichtlich
-- Sachlich
-- Keine unnötigen Details
+WICHTIG:
+Halte dich exakt an alle erkannten Regeln.
+Wenn eine Regel unklar ist, wähle die kürzeste sichere Variante.
 
 TEXT:
 {input.text}
