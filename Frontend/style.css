@@ -1523,3 +1523,328 @@ body.tool-active .officio-purpose {
     transform: translateY(-8px);
     pointer-events: none;
 }
+/* =====================================================
+   🔥 FINAL FIX – BODY OVERLAY BLOCKIERT INTERAKTION
+   Ursache: body/html ::before / ::after Layer
+===================================================== */
+
+html::before,
+html::after,
+body::before,
+body::after {
+    pointer-events: none !important;
+}
+
+/* Sicherheit: Main & Tools bleiben klickbar */
+main,
+.app-main,
+.tool-section,
+textarea,
+input,
+button {
+    pointer-events: auto !important;
+}
+/* =====================================================
+   🔥 ABSOLUTE FIX – INTERACTION KILLER LAYER
+   Ursache: Fullscreen ::before / ::after Overlays
+===================================================== */
+
+/* ALLE Fullscreen-Pseudo-Layer dürfen keine Pointer abfangen */
+html::before,
+html::after,
+body::before,
+body::after,
+body.dark::before,
+body.tool-active::before,
+.app-main::before,
+.app-main::after {
+    pointer-events: none !important;
+}
+
+/* Sicherstellen: echte Inhalte sind klickbar */
+header,
+main,
+.app-main,
+.tool-section,
+textarea,
+input,
+button,
+select {
+    pointer-events: auto !important;
+}
+/* Dropzone darf nur IM TOOL blockieren, nicht global */
+body.tool-active #tool-summary .summary-dropzone {
+    pointer-events: none;
+}
+
+/* Popup MUSS IMMER klickbar sein */
+#officio-popup-overlay,
+#officio-popup-overlay * {
+    pointer-events: auto !important;
+}
+
+
+/* Textarea & Fokusfeld explizit aktiv */
+#inputText,
+#summaryFocus {
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+}
+/* ============================= */
+/* OFFICIO ANNOUNCEMENT POPUP */
+/* ============================= */
+
+#officio-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.officio-popup {
+    background: linear-gradient(135deg, #0f172a, #020617);
+    color: #ffffff;
+    padding: 32px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    font-family: Inter, sans-serif;
+}
+
+.officio-popup h3 {
+    margin-bottom: 12px;
+    font-size: 1.3rem;
+}
+
+.officio-popup p {
+    opacity: 0.9;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.officio-popup-button {
+    margin-top: 20px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.officio-popup-button:hover {
+    background: #1d4ed8;
+}
+
+.officio-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.officio-popup-close:hover {
+    opacity: 1;
+}
+/* ============================= */
+/* OFFICIO ANNOUNCEMENT POPUP – FORCE VISIBLE */
+/* ============================= */
+
+#officio-popup-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    backdrop-filter: blur(6px) !important;
+    z-index: 99999 !important;
+}
+/* ============================= */
+/* OFFICIO ANNOUNCEMENT POPUP – CLICK FIX */
+/* ============================= */
+
+#officio-popup-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    backdrop-filter: blur(6px) !important;
+    z-index: 999999 !important;
+
+    /* 🔥 DAS IST DER FIX */
+    pointer-events: auto !important;
+}
+
+.officio-popup {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1;
+}
+/* ============================= */
+/* OFFICIO POPUP – ABSOLUTE OVERRIDE */
+/* ============================= */
+
+#officio-popup-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483647 !important; /* MAX */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(0,0,0,0.6) !important;
+
+    pointer-events: auto !important;
+}
+
+#officio-popup-overlay * {
+    pointer-events: auto !important;
+}
+
+.officio-popup {
+    position: relative !important;
+    z-index: 2147483647 !important;
+}
+/* ============================= */
+/* OFFICIO POPUP – BUTTON FIX */
+/* ============================= */
+
+#officio-popup-overlay {
+    pointer-events: auto !important;
+}
+
+#officio-popup-overlay * {
+    pointer-events: auto !important;
+}
+
+.officio-popup button {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+/* ============================= */
+/* FILE DROP FIELD – FULL AREA  */
+/* ============================= */
+
+.summary-dropzone {
+    position: relative;
+    width: 100%;
+    min-height: 180px;
+    border-radius: 18px;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.06),
+        rgba(255,255,255,0.02)
+    );
+    border: 1px dashed rgba(140, 170, 255, 0.35);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.summary-dropzone:hover {
+    border-color: rgba(140, 170, 255, 0.8);
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.08),
+        rgba(255,255,255,0.03)
+    );
+}
+
+.summary-dropzone::after {
+    content: "📄 Datei hier hineinziehen oder klicken";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: rgba(200, 215, 255, 0.85);
+    pointer-events: none;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Textarea nur als Container – kein Schreibfeld */
+.summary-dropzone textarea {
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    resize: none;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: transparent;
+    caret-color: transparent;
+    pointer-events: none;
+}
+.summary-dropzone.has-file::after {
+    content: "📎 Datei geladen – bereit zum Zusammenfassen";
+    color: #c9d7ff;
+    font-weight: 500;
+}
+/* ============================= */
+/* DARK FULL DROPZONE FIX */
+/* ============================= */
+
+.summary-dropzone {
+    background: radial-gradient(
+        120% 120% at 50% 0%,
+        rgba(90, 120, 255, 0.08),
+        rgba(10, 14, 30, 0.98)
+    );
+    border: 1px dashed rgba(120, 150, 255, 0.35);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+        0 30px 80px rgba(0, 0, 0, 0.6);
+}
+
+/* Hover-State */
+.summary-dropzone:hover {
+    border-color: rgba(150, 180, 255, 0.7);
+    background: radial-gradient(
+        120% 120% at 50% 0%,
+        rgba(120, 150, 255, 0.14),
+        rgba(10, 14, 30, 1)
+    );
+}
+
+/* ZENTRALER TEXT */
+.summary-dropzone::after {
+    content: "📄 Datei hier reinziehen";
+    color: rgba(200, 215, 255, 0.85);
+    font-size: 15px;
+    letter-spacing: 0.2px;
+}
+
+/* Textarea komplett neutralisieren */
+.summary-dropzone textarea {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    caret-color: transparent !important;
+}
+/* 🔥 REMOVE "undefined" TEXT IN DROPZONE */
+.summary-dropzone {
+    font-size: 0;
+}
+
+/* Inhalt wieder korrekt sichtbar machen */
+.summary-dropzone::after {
+    font-size: 15px;
+}

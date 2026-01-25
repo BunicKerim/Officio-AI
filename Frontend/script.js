@@ -273,8 +273,8 @@ document.addEventListener("DOMContentLoaded", () => {
             "info.list.effort": "⚡ Weniger manueller Aufwand",
             "info.list.assistant": "🧠 Digitale Büroassistenz",
             "info.focus": "Fokus: Zeitersparnis & Klarheit",
-            "tool.summary": "📝 Zusammenfassen",
-            "tool.summary.desc": "Fasst lange Texte oder Dateien so zusammen, wie du es dir wünschst.",
+            "tool.summary": "📝 Dateien, Dokumente, E-Mails, etc. zusammenfassen",
+            "tool.summary.desc": "Fasst Dateien so zusammen, wie du es dir wünschst.",
             "tool.email": "✉️ E-Mail Antwort",
             "tool.email.desc": "Automatisch passende Antworten erstellen.",
             "summary.title": "Text zusammenfassen",
@@ -361,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
         de: {
             summaryTitle: "Texte oder Dateien zusammenfassen",
             summaryBtn: "Zusammenfassen",
-            summaryPlaceholder: "Text oder Datei hier einfügen...",
+            summaryPlaceholder: "",
             summaryFocus: "Stichwörter / Vorgaben (z. B. kurz, Bulletpoints, max. 3 Sätze, Management)",
 
             emailTitle: "E-Mail Antwort erstellen",
@@ -1213,3 +1213,264 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dz) dz.classList.remove("global-drag");
     });
 })();
+/* ============================= */
+/* OFFICIO ANNOUNCEMENT POPUP */
+/* ============================= */
+
+(function () {
+    const overlay = document.getElementById("officio-popup-overlay");
+    if (!overlay) return;
+
+    const closeBtn = overlay.querySelector(".officio-popup-close");
+    const continueBtn = overlay.querySelector(".officio-popup-button");
+
+    const closePopup = () => {
+        overlay.style.display = "none";
+    };
+
+    closeBtn.addEventListener("click", closePopup);
+    continueBtn.addEventListener("click", closePopup);
+})();
+/* ============================= */
+/* OFFICIO POPUP – BUTTON EVENT FIX */
+/* ============================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const overlay = document.getElementById("officio-popup-overlay");
+    if (!overlay) return;
+
+    overlay.style.display = "flex";
+
+    const closeBtn = overlay.querySelector(".officio-popup-close");
+    const continueBtn = overlay.querySelector(".officio-popup-button");
+
+    // 🔥 Buttons dürfen NICHT von globalen Listenern blockiert werden
+    [closeBtn, continueBtn].forEach(btn => {
+        if (!btn) return;
+
+        ["click","mousedown","pointerdown"].forEach(evt => {
+            btn.addEventListener(evt, e => {
+                e.stopPropagation();          // blockt globale Listener
+                e.stopImmediatePropagation();// blockt harte Killer
+            }, true);
+        });
+    });
+
+    const closePopup = () => {
+        overlay.style.display = "none";
+    };
+
+    closeBtn?.addEventListener("click", closePopup);
+    continueBtn?.addEventListener("click", closePopup);
+});
+/* =========================================
+   OFFICIO POPUP – ISOLATED SHADOW DOM
+   (UNBLOCKABLE, FINAL)
+========================================= */
+
+(() => {
+    const host = document.createElement("div");
+    host.style.position = "fixed";
+    host.style.inset = "0";
+    host.style.zIndex = "2147483647";
+    document.body.appendChild(host);
+
+    const shadow = host.attachShadow({ mode: "open" });
+
+    shadow.innerHTML = `
+        <style>
+            * { box-sizing: border-box; font-family: Inter, sans-serif; }
+
+            .overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .popup {
+                background: linear-gradient(135deg,#0f172a,#020617);
+                color: white;
+                padding: 32px;
+                border-radius: 16px;
+                width: 90%;
+                max-width: 420px;
+                text-align: center;
+                position: relative;
+            }
+
+            button {
+                margin-top: 20px;
+                padding: 10px 18px;
+                border-radius: 999px;
+                border: none;
+                background: #2563eb;
+                color: white;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            .close {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                cursor: pointer;
+            }
+        </style>
+
+        <div class="overlay">
+            <div class="popup">
+                <button class="close">✕</button>
+                <h3>🚀 Officio AI is evolving daily</h3>
+                <p>
+                    New improvements and tools are added continuously.<br>
+                    You are using a live product in progress.
+                </p>
+                <button class="continue">Let’s get to work</button>
+            </div>
+        </div>
+    `;
+
+    const close = () => host.remove();
+
+    shadow.querySelector(".close").onclick = close;
+    shadow.querySelector(".continue").onclick = close;
+})();
+/* ==================================================
+   FINAL OVERRIDE – SUMMARY BUTTON (TEXT vs FILE)
+================================================== */
+
+(() => {
+    const btn = document.getElementById("summarizeBtn");
+    const fileInput = document.getElementById("summaryFile");
+    const textInput = document.getElementById("inputText");
+    const focusInput = document.getElementById("summaryFocus");
+    const output = document.getElementById("output");
+
+    if (!btn) return;
+
+    // 🔥 ALLE ALTEN HANDLER KILLEN
+    const cleanBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(cleanBtn, btn);
+
+    cleanBtn.addEventListener("click", async () => {
+
+        const hasFile = fileInput?.files?.length > 0;
+        const text = textInput?.value?.trim();
+        const focus = focusInput?.value?.trim() || "";
+
+        // ================= FILE MODE =================
+        if (hasFile) {
+            output.textContent = "📄 Datei wird gelesen…";
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("focus", focus);
+
+            try {
+                setTimeout(() => {
+                    output.textContent = "🧠 Zusammenfassung wird erstellt…";
+                }, 300);
+
+                const res = await fetch(
+                    "https://officio-ai-lybv.onrender.com/summarize-file",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+                const data = await res.json();
+                output.textContent = data.result || "❌ Keine Antwort erhalten.";
+
+            } catch (err) {
+                console.error(err);
+                output.textContent = "❌ Fehler bei der Datei-Verarbeitung.";
+            }
+
+            return;
+        }
+
+        // ================= TEXT MODE =================
+        if (!text) {
+            output.textContent = "❌ Bitte Text eingeben oder Datei auswählen.";
+            return;
+        }
+
+        output.textContent = "🧠 Zusammenfassung wird erstellt…";
+
+        try {
+            const res = await fetch(
+                "https://officio-ai-lybv.onrender.com/summarize",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text, focus })
+                }
+            );
+
+            const data = await res.json();
+            output.textContent = data.result || "❌ Keine Antwort erhalten.";
+
+        } catch (err) {
+            console.error(err);
+            output.textContent = "❌ Fehler bei der Verarbeitung.";
+        }
+    });
+})();
+document.getElementById("summarizeBtn").addEventListener("click", async () => {
+    const output = document.getElementById("output");
+    output.textContent = "Zusammenfassung wird erstellt…";
+
+    const fileInput = document.getElementById("summaryFile");
+    const textInput = document.getElementById("inputText");
+    const focus = document.getElementById("summaryFocus").value || "";
+
+    try {
+        // 🔹 FALL 1: DATEI
+        if (fileInput && fileInput.files.length > 0) {
+            console.log("📤 FRONTEND → summarize-file");
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("focus", focus);
+
+            const res = await fetch("http://127.0.0.1:8000/summarize-file", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+            output.textContent = data.result ?? "❌ Keine Antwort erhalten.";
+            return;
+        }
+
+        // 🔹 FALL 2: TEXT
+        const text = textInput.value.trim();
+        if (!text) {
+            output.textContent = "❌ Kein Text oder Datei vorhanden.";
+            return;
+        }
+
+        console.log("📤 FRONTEND → summarize (TEXT)");
+
+        const res = await fetch("http://127.0.0.1:8000/summarize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, focus })
+        });
+
+        const data = await res.json();
+        output.textContent = data.result ?? "❌ Keine Antwort erhalten.";
+
+    } catch (err) {
+        console.error("❌ Frontend Fehler:", err);
+        output.textContent = "❌ Fehler bei der Anfrage.";
+    }
+});

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -7,6 +7,12 @@ from ai_config import ROLE
 
 import os
 import re
+import io
+from docx import Document
+from pypdf import PdfReader
+
+# 🔥 BEWEIS: Datei wird geladen
+print("🔥 MAIN.PY GELADEN")
 
 app = FastAPI(title="Officio AI")
 
@@ -22,7 +28,7 @@ def root():
 # ========= CORS =========
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # für MVP ok
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,11 +45,11 @@ class EmailReplyInput(BaseModel):
     keywords: str
     style: str
 
-# ========= ENDPOINTS =========
-
+# ========= TEXT ZUSAMMENFASSEN =========
 
 @app.post("/summarize")
 def summarize(input: SummaryInput):
+    print("📥 /summarize AUFGERUFEN")
 
     focus_block = ""
     technical_rules = ""
@@ -54,24 +60,18 @@ BENUTZER-VORGABEN (STRIKT):
 {input.focus}
 """
 
-        # 🔍 Dynamische Satzanzahl erkennen
         match = re.search(r'(\d+)\s*satz', input.focus.lower())
         if match:
             max_sentences = match.group(1)
-
             technical_rules += f"""
 TECHNISCHE REGEL:
-Die Antwort darf aus maximal {max_sentences} vollständigen Sätzen bestehen.
-Ein Satz endet mit Punkt, Fragezeichen oder Ausrufezeichen.
-Überschreite diese Anzahl unter keinen Umständen.
+Maximal {max_sentences} vollständige Sätze.
 """
 
-        # 🔍 Bulletpoints erkennen
         if "bullet" in input.focus.lower() or "stichpunkt" in input.focus.lower():
             technical_rules += """
 FORMAT-REGEL:
-Verwende ausschließlich Bulletpoints.
-Keine Fließtexte.
+Nur Bulletpoints.
 """
 
     prompt = f"""
@@ -83,43 +83,112 @@ Fasse den folgenden Text zusammen.
 {focus_block}
 {technical_rules}
 
-WICHTIG:
-Halte dich exakt an alle erkannten Regeln.
-Wenn eine Regel unklar ist, wähle die kürzeste sichere Variante.
-
 TEXT:
 {input.text}
 """.strip()
 
-    result = call_ai(ROLE, prompt)
-    return {"result": result}
+    try:
+        print("🤖 OpenAI REQUEST (TEXT)")
+        result = call_ai(ROLE, prompt)
+        print("✅ OpenAI RESPONSE ERHALTEN")
+        return {"result": result}
+    except Exception as e:
+        print("❌ FEHLER summarize:", e)
+        return {"result": "❌ Fehler bei der Text-Zusammenfassung."}
 
+# ========= DATEI ZUSAMMENFASSEN =========
 
+@app.post("/summarize-file")
+async def summarize_file(
+    file: UploadFile = File(...),
+    focus: str = Form("")
+):
+    print("📥 /summarize-file AUFGERUFEN")
+
+    filename = file.filename.lower()
+    contents = await file.read()
+    text = ""
+
+    try:
+        if filename.endswith(".docx"):
+            doc = Document(io.BytesIO(contents))
+            text = "\n".join(p.text for p in doc.paragraphs)
+
+        elif filename.endswith(".pdf"):
+            reader = PdfReader(io.BytesIO(contents))
+            pages = [p.extract_text() for p in reader.pages if p.extract_text()]
+            text = "\n".join(pages)
+
+        else:
+            return {"result": "❌ Dateityp nicht unterstützt."}
+
+        if not text.strip():
+            return {"result": "❌ Datei enthält keinen lesbaren Text."}
+
+        focus_block = ""
+        technical_rules = ""
+
+        if focus.strip():
+            focus_block = f"\nBENUTZER-VORGABEN:\n{focus}"
+
+            match = re.search(r'(\d+)\s*satz', focus.lower())
+            if match:
+                technical_rules += f"\nMaximal {match.group(1)} Sätze."
+
+            if "bullet" in focus.lower() or "stichpunkt" in focus.lower():
+                technical_rules += "\nNur Bulletpoints."
+
+        prompt = f"""
+Du bist ein sachlicher, präziser Büroassistent.
+
+AUFGABE:
+Fasse den folgenden Text zusammen.
+{focus_block}
+{technical_rules}
+
+TEXT:
+{text}
+""".strip()
+
+        print("🤖 OpenAI REQUEST (DATEI)")
+        result = call_ai(ROLE, prompt)
+        print("✅ OpenAI RESPONSE ERHALTEN")
+
+        return {"result": result}
+
+    except Exception as e:
+        print("❌ FEHLER summarize-file:", e)
+        return {"result": "❌ Fehler bei der Datei-Zusammenfassung."}
+
+# ========= EMAIL =========
 
 @app.post("/email-reply")
 def email_reply(input: EmailReplyInput):
+    print("📥 /email-reply AUFGERUFEN")
+
     prompt = f"""
 Du sollst eine professionelle E-Mail-Antwort verfassen.
 
 STIL:
 {input.style}
 
-STICHWORTE / HINWEISE:
+STICHWORTE:
 {input.keywords}
 
 ORIGINAL-E-MAIL:
 {input.original_email}
-
-Erstelle eine vollständige, gut formulierte Antwort in ganzen Sätzen.
-Formatiere die E-Mail korrekt mit Anrede, Hauptteil und Grußformel.
-Nutze Absätze für bessere Lesbarkeit.
 """.strip()
 
-    result = call_ai(ROLE, prompt)
-    return {"result": result}
+    try:
+        print("🤖 OpenAI REQUEST (EMAIL)")
+        result = call_ai(ROLE, prompt)
+        print("✅ OpenAI RESPONSE ERHALTEN")
+        return {"result": result}
+    except Exception as e:
+        print("❌ FEHLER email:", e)
+        return {"result": "❌ Fehler bei der E-Mail-Erstellung."}
 
-
-# ========= LOCAL / CLOUD START =========
+# ========= START =========
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
