@@ -274,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "info.list.assistant": "🧠 Digitale Büroassistenz",
             "info.focus": "Fokus: Zeitersparnis & Klarheit",
             "tool.summary": "📝 Zusammenfassen",
-            "tool.summary.desc": "Fasst lange Texte so zusammen, wie du es dir wünschst.",
+            "tool.summary.desc": "Fasst lange Texte oder Dateien so zusammen, wie du es dir wünschst.",
             "tool.email": "✉️ E-Mail Antwort",
             "tool.email.desc": "Automatisch passende Antworten erstellen.",
             "summary.title": "Text zusammenfassen",
@@ -359,9 +359,9 @@ document.addEventListener("DOMContentLoaded", () => {
 (function () {
     const translations = {
         de: {
-            summaryTitle: "Text zusammenfassen",
+            summaryTitle: "Texte oder Dateien zusammenfassen",
             summaryBtn: "Zusammenfassen",
-            summaryPlaceholder: "Text hier einfügen...",
+            summaryPlaceholder: "Text oder Datei hier einfügen...",
             summaryFocus: "Stichwörter / Vorgaben (z. B. kurz, Bulletpoints, max. 3 Sätze, Management)",
 
             emailTitle: "E-Mail Antwort erstellen",
@@ -454,4 +454,762 @@ document.addEventListener("DOMContentLoaded", () => {
         languageSelect.value = savedLang;
         applyToolLanguage(savedLang);
     }
+})();
+/* =========================
+   CLEAN DRAG & DROP (FINAL)
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const dropzone = document.getElementById("summaryDropzone");
+    const textarea = document.getElementById("inputText");
+    const fileInput = document.getElementById("summaryFile");
+    const fileStatus = document.getElementById("fileStatus");
+
+    if (!dropzone || !fileInput) return;
+
+    // Browser-Default blockieren
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(evt => {
+        dropzone.addEventListener(evt, e => e.preventDefault());
+    });
+
+    // Drag visuell
+    dropzone.addEventListener("dragover", () => {
+        dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("dragover");
+    });
+
+    // DROP
+    dropzone.addEventListener("drop", (e) => {
+        dropzone.classList.remove("dragover");
+
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+
+        fileInput.files = e.dataTransfer.files;
+
+        textarea.value = "";
+        textarea.disabled = true;
+
+        fileStatus.textContent = `📄 Datei geladen: ${file.name}`;
+        fileStatus.classList.remove("hidden");
+    });
+
+
+
+    fileInput.addEventListener("change", () => {
+        if (!fileInput.files.length) return;
+
+        const file = fileInput.files[0];
+        textarea.value = "";
+        textarea.disabled = true;
+
+        fileStatus.textContent = `📄 Datei geladen: ${file.name}`;
+        fileStatus.classList.remove("hidden");
+    });
+
+    // Tippen → Datei verwerfen
+    textarea.addEventListener("input", () => {
+        if (textarea.value.trim().length > 0) {
+            fileInput.value = "";
+            textarea.disabled = false;
+            fileStatus.classList.add("hidden");
+        }
+    });
+});
+/* ==================================================
+   CLEAN SUMMARY INPUT LOGIC (FINAL)
+================================================== */
+
+(() => {
+    const textInput = document.getElementById("inputText");
+    const focusInput = document.getElementById("summaryFocus");
+    const fileInput = document.getElementById("summaryFile");
+    const pickBtn = document.getElementById("pickFileBtn");
+    const status = document.getElementById("fileStatus");
+
+    if (!textInput || !fileInput || !pickBtn) return;
+
+    /* ---------- 1️⃣ KEINE LEERZEILEN ---------- */
+
+    [textInput, focusInput].forEach(el => {
+        if (!el) return;
+
+        // beim Laden
+        el.value = el.value.trim();
+
+        // beim Tippen
+        el.addEventListener("input", () => {
+            if (el.value.startsWith("\n")) {
+                el.value = el.value.replace(/^\n+/, "");
+            }
+        });
+
+        // beim Paste
+        el.addEventListener("paste", () => {
+            setTimeout(() => {
+                el.value = el.value.trimStart();
+            }, 0);
+        });
+    });
+
+
+
+    /* ---------- 3️⃣ DATEI SETZEN ---------- */
+
+    fileInput.addEventListener("change", () => {
+        if (!fileInput.files.length) return;
+
+        const file = fileInput.files[0];
+
+        // Text deaktivieren
+        textInput.value = "";
+        textInput.disabled = true;
+
+        if (status) {
+            status.textContent = `📄 Datei geladen: ${file.name}`;
+            status.classList.remove("hidden");
+        }
+    });
+
+    /* ---------- 4️⃣ TEXT ÜBERSCHREIBT DATEI ---------- */
+
+    textInput.addEventListener("input", () => {
+        if (!textInput.disabled) return;
+
+        fileInput.value = "";
+        textInput.disabled = false;
+
+        if (status) {
+            status.textContent = "";
+            status.classList.add("hidden");
+        }
+    });
+
+})();
+/* ==================================================
+   HARD FIX: NO FILE PICKER ON TEXTAREA CLICK
+================================================== */
+
+(() => {
+    const textInput = document.getElementById("inputText");
+    const fileInput = document.getElementById("summaryFile");
+    const pickBtn = document.getElementById("pickFileBtn");
+
+    if (!textInput || !fileInput || !pickBtn) return;
+
+    // ❌ Textfeld DARF NIE Explorer öffnen
+    textInput.addEventListener("click", e => {
+        e.stopPropagation();
+    });
+
+    textInput.addEventListener("mousedown", e => {
+        e.stopPropagation();
+    });
+
+})();
+/* ==================================================
+   SINGLE SOURCE FILE PICKER (FINAL)
+================================================== */
+
+(() => {
+    const pickBtn = document.getElementById("pickFileBtn");
+    const fileInput = document.getElementById("summaryFile");
+    const textInput = document.getElementById("inputText");
+    const fileStatus = document.getElementById("fileStatus");
+    const dropzone = document.getElementById("summaryDropzone");
+
+    if (!pickBtn || !fileInput) return;
+
+    /* ❌ DROPZONE DARF KEINEN EXPLORER ÖFFNEN */
+    if (dropzone) {
+        ["click", "mousedown", "mouseup"].forEach(evt => {
+            dropzone.addEventListener(evt, e => e.stopPropagation(), true);
+        });
+    }
+
+    /* ❌ TEXTAREA DARF KEINEN EXPLORER ÖFFNEN */
+    if (textInput) {
+        ["click", "mousedown"].forEach(evt => {
+            textInput.addEventListener(evt, e => e.stopPropagation(), true);
+        });
+    }
+
+    /* ✅ EINZIGER EXPLORER-TRIGGER */
+    pickBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        fileInput.value = "";
+        fileInput.click();
+    };
+
+    /* 📄 DATEI STATUS */
+    fileInput.onchange = () => {
+        if (!fileInput.files.length) return;
+
+        const file = fileInput.files[0];
+
+        if (fileStatus) {
+            fileStatus.textContent = `📄 Datei geladen: ${file.name}`;
+            fileStatus.classList.remove("hidden");
+        }
+
+        if (textInput) {
+            textInput.value = "";
+            textInput.disabled = true;
+        }
+    };
+})();
+/* ==================================================
+   FILE REMOVE + STATE RESET (FINAL)
+================================================== */
+
+(() => {
+    const fileInput = document.getElementById("summaryFile");
+    const textInput = document.getElementById("inputText");
+    const fileStatus = document.getElementById("fileStatus");
+    const fileName = document.getElementById("fileName");
+    const removeBtn = document.getElementById("removeFileBtn");
+
+    if (!fileInput || !removeBtn) return;
+
+    /* 📄 Datei gesetzt */
+    fileInput.addEventListener("change", () => {
+        if (!fileInput.files.length) return;
+
+        const file = fileInput.files[0];
+
+        fileName.textContent = `📄 ${file.name}`;
+        fileStatus.classList.remove("hidden");
+
+        textInput.value = "";
+        textInput.disabled = true;
+    });
+
+    /* ❌ Datei entfernen */
+    removeBtn.addEventListener("click", () => {
+        fileInput.value = "";
+        fileStatus.classList.add("hidden");
+
+        textInput.disabled = false;
+        textInput.focus();
+    });
+})();
+/* ================================
+   CLEAN SUMMARY FILE LOGIC (FINAL)
+================================ */
+
+(() => {
+    const dropzone = document.getElementById("summaryDropzone");
+    const textInput = document.getElementById("inputText");
+    const fileInput = document.getElementById("summaryFile");
+    const pickBtn = document.getElementById("pickFileBtn");
+    const fileBox = document.getElementById("fileBox");
+    const fileName = document.getElementById("fileName");
+    const removeBtn = document.getElementById("removeFileBtn");
+
+    if (!dropzone || !fileInput) return;
+
+    /* ---------- LEERZEILEN VERHINDERN ---------- */
+    [textInput, document.getElementById("summaryFocus")].forEach(el => {
+        if (!el) return;
+        el.addEventListener("input", () => {
+            el.value = el.value.replace(/^\s+/, "");
+        });
+    });
+
+    /* ---------- DRAG EVENTS ---------- */
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(evt => {
+        dropzone.addEventListener(evt, e => e.preventDefault());
+    });
+
+    dropzone.addEventListener("dragover", () => dropzone.classList.add("dragover"));
+    dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+
+    dropzone.addEventListener("drop", e => {
+        dropzone.classList.remove("dragover");
+        if (!e.dataTransfer.files.length) return;
+        setFile(e.dataTransfer.files[0]);
+    });
+
+    /* ---------- PICK BUTTON ---------- */
+    pickBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+        if (!fileInput.files.length) return;
+        setFile(fileInput.files[0]);
+    });
+
+    /* ---------- SET FILE ---------- */
+    function setFile(file) {
+        fileInput.files = createFileList(file);
+        fileName.textContent = `📄 ${file.name}`;
+
+        fileBox.classList.remove("hidden");
+        dropzone.classList.add("hidden");
+
+        textInput.value = "";
+        textInput.disabled = true;
+    }
+
+    /* ---------- REMOVE FILE ---------- */
+    removeBtn.addEventListener("click", () => {
+        fileInput.value = "";
+        fileBox.classList.add("hidden");
+        dropzone.classList.remove("hidden");
+        textInput.disabled = false;
+    });
+
+    /* ---------- UTILITY ---------- */
+    function createFileList(file) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        return dt.files;
+    }
+
+})();
+/* ==================================================
+   FINAL FILE PICKER CONTROLLER (ONE SOURCE OF TRUTH)
+   FIX: Explorer öffnet sich NUR 1x
+================================================== */
+
+(() => {
+    const dropzone = document.getElementById("summaryDropzone");
+    const textInput = document.getElementById("inputText");
+    const fileInput = document.getElementById("summaryFile");
+    const pickBtn   = document.getElementById("pickFileBtn");
+    const statusBox = document.getElementById("fileStatus");
+    const fileName  = document.getElementById("fileName");
+    const removeBtn = document.getElementById("removeFileBtn");
+
+    if (!dropzone || !fileInput || !pickBtn) return;
+
+    /* ===============================
+       HARD RESET – ALTE EVENTS BLOCKEN
+    =============================== */
+
+    const kill = e => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
+    };
+
+    // Dropzone darf NIEMALS Explorer öffnen
+    ["click","mousedown","mouseup"].forEach(evt => {
+        dropzone.addEventListener(evt, kill, true);
+    });
+
+    // Textfeld darf NIEMALS Explorer öffnen
+    ["click","mousedown","mouseup"].forEach(evt => {
+        textInput.addEventListener(evt, e => e.stopPropagation(), true);
+    });
+
+    /* ===============================
+       EXPLORER: NUR ÜBER BUTTON
+    =============================== */
+
+    let opening = false;
+
+    pickBtn.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (opening) return;
+        opening = true;
+
+        fileInput.value = "";
+        fileInput.click();
+
+        setTimeout(() => opening = false, 400);
+    });
+
+    /* ===============================
+       DRAG & DROP (DATEI)
+    =============================== */
+
+    ["dragenter","dragover"].forEach(evt => {
+        dropzone.addEventListener(evt, e => {
+            e.preventDefault();
+            dropzone.classList.add("dragover");
+        });
+    });
+
+    ["dragleave","drop"].forEach(evt => {
+        dropzone.addEventListener(evt, e => {
+            e.preventDefault();
+            dropzone.classList.remove("dragover");
+        });
+    });
+
+    dropzone.addEventListener("drop", e => {
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        setFile(file);
+    });
+
+    /* ===============================
+       FILE INPUT CHANGE
+    =============================== */
+
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        setFile(file);
+    });
+
+    /* ===============================
+       SET / REMOVE FILE
+    =============================== */
+
+    function setFile(file) {
+        textInput.value = "";
+        textInput.disabled = true;
+
+        fileName.textContent = `📄 ${file.name}`;
+        statusBox.classList.remove("hidden");
+    }
+
+    function clearFile() {
+        fileInput.value = "";
+        textInput.disabled = false;
+        statusBox.classList.add("hidden");
+        fileName.textContent = "";
+    }
+
+    removeBtn.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        clearFile();
+    });
+
+})();
+/* ==================================================
+   🔥 ABSOLUTE FINAL FIX – FILE PICKER
+   Lösung: DOM NODE RESET (killt ALLE alten Listener)
+================================================== */
+
+(() => {
+    const oldPickBtn = document.getElementById("pickFileBtn");
+    const oldFileInp = document.getElementById("summaryFile");
+
+    if (!oldPickBtn || !oldFileInp) return;
+
+    /* ===============================
+       1️⃣ BUTTON RESET (KLONEN)
+    =============================== */
+
+    const pickBtn = oldPickBtn.cloneNode(true);
+    oldPickBtn.parentNode.replaceChild(pickBtn, oldPickBtn);
+
+    /* ===============================
+       2️⃣ FILE INPUT RESET (KLONEN)
+    =============================== */
+
+    const fileInput = oldFileInp.cloneNode(true);
+    oldFileInp.parentNode.replaceChild(fileInput, oldFileInp);
+
+    /* ===============================
+       3️⃣ STATUS ELEMENTE
+    =============================== */
+
+    const textInput = document.getElementById("inputText");
+    const statusBox = document.getElementById("fileStatus");
+    const fileName  = document.getElementById("fileName");
+    const removeBtn = document.getElementById("removeFileBtn");
+
+    /* ===============================
+       4️⃣ EXPLORER → NUR 1×
+    =============================== */
+
+    pickBtn.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        fileInput.value = "";
+        fileInput.click();
+    });
+
+    /* ===============================
+       5️⃣ DATEI GEWÄHLT
+    =============================== */
+
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        textInput.value = "";
+        textInput.disabled = true;
+
+        fileName.textContent = `📄 ${file.name}`;
+        statusBox.classList.remove("hidden");
+    });
+
+    /* ===============================
+       6️⃣ DATEI ENTFERNEN
+    =============================== */
+
+    removeBtn.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        fileInput.value = "";
+        textInput.disabled = false;
+        statusBox.classList.add("hidden");
+        fileName.textContent = "";
+    });
+
+})();
+/* ==================================================
+   GLOBAL DRAG HIGHLIGHT (PAGE LEVEL)
+   Markiert Dropzone sobald Maus/Datei auf Seite ist
+================================================== */
+
+(() => {
+    const dropzone = document.getElementById("summaryDropzone");
+    if (!dropzone) return;
+
+    let dragCounter = 0;
+
+    // Sobald irgendwas in die Seite gezogen wird
+    document.addEventListener("dragenter", e => {
+        if (e.dataTransfer && e.dataTransfer.types.includes("Files")) {
+            dragCounter++;
+            dropzone.classList.add("global-drag");
+        }
+    });
+
+    // Wenn Datei wieder rausgeht
+    document.addEventListener("dragleave", e => {
+        dragCounter--;
+        if (dragCounter <= 0) {
+            dropzone.classList.remove("global-drag");
+            dragCounter = 0;
+        }
+    });
+
+    // Nach Drop alles resetten
+    document.addEventListener("drop", () => {
+        dragCounter = 0;
+        dropzone.classList.remove("global-drag");
+    });
+})();
+/* ==================================================
+   REMOVE UPLOADED FILE (FINAL)
+================================================== */
+
+(() => {
+    const fileInput  = document.getElementById("summaryFile");
+    const textInput  = document.getElementById("inputText");
+    const statusBox  = document.getElementById("fileStatus");
+    const fileName   = document.getElementById("fileName");
+    const removeBtn  = document.getElementById("removeFileBtn");
+
+    if (!fileInput || !textInput || !removeBtn) return;
+
+    removeBtn.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Datei komplett entfernen
+        fileInput.value = "";
+
+        // Textfeld reaktivieren
+        textInput.disabled = false;
+        textInput.focus();
+
+        // Status-Box ausblenden
+        if (statusBox) statusBox.classList.add("hidden");
+        if (fileName) fileName.textContent = "";
+    });
+})();
+/* ==================================================
+   TOOL → START TRANSITION HANDLER
+================================================== */
+
+(() => {
+    const backButtons = document.querySelectorAll(".back-to-start");
+    const toolSections = document.querySelectorAll(".tool-section");
+
+    if (!backButtons.length) return;
+
+    backButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            document.body.classList.add("returning-to-start");
+
+            // Nach Animation Tool schließen
+            setTimeout(() => {
+                document.body.classList.remove("tool-active");
+                document.body.classList.remove("returning-to-start");
+
+                toolSections.forEach(s => s.classList.remove("active"));
+            }, 280); // muss zu CSS passen
+        });
+    });
+})();
+/* ==================================================
+   EMAIL TOOL – FILE UPLOAD (MIRROR SUMMARY TOOL)
+================================================== */
+
+(() => {
+    const dropzone = document.getElementById("emailDropzone");
+    const textInput = document.getElementById("emailOriginal");
+    const fileInput = document.getElementById("emailFile");
+    const pickBtn   = document.getElementById("pickEmailFileBtn");
+    const statusBox = document.getElementById("emailFileStatus");
+    const fileName  = document.getElementById("emailFileName");
+    const removeBtn = document.getElementById("removeEmailFileBtn");
+
+    if (!dropzone || !fileInput || !pickBtn) return;
+
+    /* ---------- Explorer nur über Button ---------- */
+    pickBtn.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        fileInput.value = "";
+        fileInput.click();
+    });
+
+    /* ---------- Drag Visual ---------- */
+    ["dragenter", "dragover"].forEach(evt => {
+        dropzone.addEventListener(evt, e => {
+            e.preventDefault();
+            dropzone.classList.add("dragover");
+        });
+    });
+
+    ["dragleave", "drop"].forEach(evt => {
+        dropzone.addEventListener(evt, e => {
+            e.preventDefault();
+            dropzone.classList.remove("dragover");
+        });
+    });
+
+    /* ---------- Drop ---------- */
+    dropzone.addEventListener("drop", e => {
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        setFile(file);
+    });
+
+    /* ---------- File Picker ---------- */
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        setFile(file);
+    });
+
+    /* ---------- Set / Remove ---------- */
+    function setFile(file) {
+        textInput.value = "";
+        textInput.disabled = true;
+
+        fileName.textContent = `📄 ${file.name}`;
+        statusBox.classList.remove("hidden");
+    }
+
+    removeBtn.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        fileInput.value = "";
+        textInput.disabled = false;
+        textInput.focus();
+
+        statusBox.classList.add("hidden");
+        fileName.textContent = "";
+    });
+
+})();
+/* ==================================================
+   GLOBAL DRAG HIGHLIGHT – SUMMARY + EMAIL
+================================================== */
+
+(() => {
+    const summaryDropzone = document.getElementById("summaryDropzone");
+    const emailDropzone   = document.getElementById("emailDropzone");
+
+    let dragCounter = 0;
+
+    function getActiveDropzone() {
+        // Nur das aktuell sichtbare Tool markieren
+        if (document.getElementById("tool-summary")?.classList.contains("active")) {
+            return summaryDropzone;
+        }
+        if (document.getElementById("tool-email")?.classList.contains("active")) {
+            return emailDropzone;
+        }
+        return null;
+    }
+
+    document.addEventListener("dragenter", e => {
+        if (!e.dataTransfer || !e.dataTransfer.types.includes("Files")) return;
+
+        dragCounter++;
+        const dz = getActiveDropzone();
+        if (dz) dz.classList.add("global-drag");
+    });
+
+    document.addEventListener("dragleave", () => {
+        dragCounter--;
+        if (dragCounter <= 0) {
+            const dz = getActiveDropzone();
+            if (dz) dz.classList.remove("global-drag");
+            dragCounter = 0;
+        }
+    });
+
+    document.addEventListener("drop", () => {
+        dragCounter = 0;
+        const dz = getActiveDropzone();
+        if (dz) dz.classList.remove("global-drag");
+    });
+})();
+/* ==================================================
+   GLOBAL DRAG HIGHLIGHT – SUMMARY + EMAIL
+================================================== */
+
+(() => {
+    const summaryDropzone = document.getElementById("summaryDropzone");
+    const emailDropzone   = document.getElementById("emailDropzone");
+
+    let dragCounter = 0;
+
+    function getActiveDropzone() {
+        // Nur das aktuell sichtbare Tool markieren
+        if (document.getElementById("tool-summary")?.classList.contains("active")) {
+            return summaryDropzone;
+        }
+        if (document.getElementById("tool-email")?.classList.contains("active")) {
+            return emailDropzone;
+        }
+        return null;
+    }
+
+    document.addEventListener("dragenter", e => {
+        if (!e.dataTransfer || !e.dataTransfer.types.includes("Files")) return;
+
+        dragCounter++;
+        const dz = getActiveDropzone();
+        if (dz) dz.classList.add("global-drag");
+    });
+
+    document.addEventListener("dragleave", () => {
+        dragCounter--;
+        if (dragCounter <= 0) {
+            const dz = getActiveDropzone();
+            if (dz) dz.classList.remove("global-drag");
+            dragCounter = 0;
+        }
+    });
+
+    document.addEventListener("drop", () => {
+        dragCounter = 0;
+        const dz = getActiveDropzone();
+        if (dz) dz.classList.remove("global-drag");
+    });
 })();

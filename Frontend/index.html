@@ -25,7 +25,6 @@
             </p>
         </div>
 
-        <!-- LANGUAGE SELECTOR + DARK MODE -->
         <div class="header-actions">
             <select id="languageSelect" aria-label="Language selector">
                 <option value="de" selected>DE</option>
@@ -56,14 +55,11 @@
     <!-- INFO TEXT -->
     <section class="officio-purpose">
         <div class="purpose-card">
-            <h3 data-i18n="info.title">
-                Wofür Officio AI entwickelt wurde
-            </h3>
+            <h3 data-i18n="info.title">Wofür Officio AI entwickelt wurde</h3>
 
             <p data-i18n="info.text">
                 Officio AI wurde entwickelt, um tägliche Büroarbeit schneller,
-                klarer und effizienter zu machen. Officio AI nutzt fortschrittliche KI-Technologien,
-                um dir bei der Bewältigung wiederkehrender Aufgaben zu helfen und dir wertvolle Zeit zu sparen.
+                klarer und effizienter zu machen.
             </p>
 
             <ul>
@@ -74,9 +70,7 @@
             </ul>
 
             <p class="focus">
-                <strong data-i18n="info.focus">
-                    Fokus: Zeitersparnis & Klarheit
-                </strong>
+                <strong data-i18n="info.focus">Fokus: Zeitersparnis & Klarheit</strong>
             </p>
         </div>
     </section>
@@ -85,57 +79,82 @@
     <section id="featureGrid" class="feature-grid">
         <div class="feature-card" data-tool="tool-summary">
             <h3 data-i18n="tool.summary">📝 Zusammenfassen</h3>
-            <p data-i18n="tool.summary.desc">
-                Fasst lange Texte, Ausschnitte, Bücher, etc. so zusammen, wie du es dir wünschst.
-            </p>
+            <p data-i18n="tool.summary.desc">Fasst Texte oder Dateien strukturiert zusammen.</p>
         </div>
 
         <div class="feature-card" data-tool="tool-email">
             <h3 data-i18n="tool.email">✉️ E-Mail Antwort</h3>
-            <p data-i18n="tool.email.desc">
-                Auf alle Arten von E-Mails automatisch auf deine Bedürfnisse angepasste Antworten erstellen.
-            </p>
+            <p data-i18n="tool.email.desc">Automatisch professionelle Antworten erstellen.</p>
         </div>
     </section>
 
     <!-- SUMMARY TOOL -->
     <section id="tool-summary" class="tool-section">
-        <button class="back-to-start" data-i18n="nav.back">
-            ← Zur Startseite
-        </button>
+        <button class="back-to-start" data-i18n="nav.back">← Zur Startseite</button>
 
-        <h2 data-i18n="summary.title">Text zusammenfassen</h2>
+        <h2 data-i18n="summary.title">Texte oder Dateien zusammenfassen</h2>
 
-        <textarea id="inputText" data-i18n-placeholder="summary.input"
-            placeholder="Text hier einfügen..."></textarea>
-
-        <textarea id="summaryFocus" data-i18n-placeholder="summary.focus"
-            placeholder="Stichwörter / Vorgaben (z. B. kurz, Bulletpoints, max. 3 Sätze, Management)">
-        </textarea>
-
-        <button id="summarizeBtn" data-i18n="summary.button">
-            Zusammenfassen
-        </button>
-
-        <div id="summaryLoader" class="loading hidden">
-            <p data-i18n="summary.loading">
-                Zusammenfassung wird erstellt…
-            </p>
+        <div id="summaryDropzone" class="summary-dropzone">
+            <div class="dropzone-content">
+                <textarea
+                    id="inputText"
+                    data-i18n-placeholder="summary.input"
+                    placeholder="Text hier einfügen oder Datei hier hineinziehen…">
+                </textarea>
+            </div>
         </div>
 
+        <input type="file" id="summaryFile" accept=".pdf,.doc,.docx,.eml,.msg" hidden>
+
+        <div class="file-picker">
+            <button type="button" id="pickFileBtn">📂 Datei auswählen</button>
+        </div>
+
+        <div id="fileStatus" class="file-box hidden">
+            <span id="fileName">📄 Datei geladen</span>
+            <button type="button" id="removeFileBtn">✕</button>
+        </div>
+
+        <textarea
+            id="summaryFocus"
+            data-i18n-placeholder="summary.focus"
+            placeholder="Stichwörter / Vorgaben (z. B. kurz, Bulletpoints, max. 3 Sätze)">
+        </textarea>
+
+        <button id="summarizeBtn" data-i18n="summary.button">Zusammenfassen</button>
         <div id="output"></div>
     </section>
 
-    <!-- EMAIL TOOL -->
+    <!-- EMAIL TOOL (ERGÄNZT – IDENTISCHE STRUKTUR) -->
     <section id="tool-email" class="tool-section">
-        <button class="back-to-start" data-i18n="nav.back">
-            ← Zur Startseite
-        </button>
+        <button class="back-to-start" data-i18n="nav.back">← Zur Startseite</button>
 
         <h2 data-i18n="email.title">E-Mail Antwort erstellen</h2>
 
-        <label data-i18n="email.original">Original-E-Mail</label>
-        <textarea id="emailOriginal"></textarea>
+        <!-- DROPZONE -->
+        <div id="emailDropzone" class="summary-dropzone">
+            <div class="dropzone-content">
+                <textarea
+                    id="emailOriginal"
+                    data-i18n-placeholder="email.original"
+                    placeholder="Original-E-Mail hier einfügen oder Datei hier hineinziehen…">
+                </textarea>
+            </div>
+        </div>
+
+        <!-- FILE INPUT -->
+        <input type="file" id="emailFile" accept=".pdf,.doc,.docx,.eml,.msg" hidden>
+
+        <!-- FILE PICKER -->
+        <div class="file-picker">
+            <button type="button" id="pickEmailFileBtn">📂 Datei auswählen</button>
+        </div>
+
+        <!-- FILE STATUS -->
+        <div id="emailFileStatus" class="file-box hidden">
+            <span id="emailFileName">📄 Datei geladen</span>
+            <button type="button" id="removeEmailFileBtn">✕</button>
+        </div>
 
         <label data-i18n="email.keywords">Stichworte</label>
         <textarea id="emailKeywords"></textarea>
@@ -147,9 +166,7 @@
             <option data-i18n="email.style.professional">Professionell</option>
         </select>
 
-        <button id="emailGenerateBtn" data-i18n="email.button">
-            Antwort generieren
-        </button>
+        <button id="emailGenerateBtn" data-i18n="email.button">Antwort generieren</button>
 
         <div id="emailOutput"></div>
     </section>
