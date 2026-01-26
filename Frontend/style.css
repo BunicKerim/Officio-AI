@@ -2051,7 +2051,7 @@ body:not(.dark) {
     position: absolute;
     top: 0;
     right: 0;
-    width: 700px;
+    width: 200px;
     height: 2px;
     background: linear-gradient(
         270deg,
@@ -2076,7 +2076,7 @@ body:not(.dark) {
 /* Sprachauswahl leicht nach oben ziehen */
 #languageSelect {
     position: relative;
-    top: 150px;          /* Feinjustierung nach oben */
+    top: 130px;          /* Feinjustierung nach oben */
 }
 
 /* =====================================================
@@ -2098,4 +2098,86 @@ body:not(.dark) {
 
 /* =====================================================
    END LANGUAGE SELECT TEXT CENTERING
+   ===================================================== */
+/* HERO TITLE ENHANCEMENT */
+.app-header .app-title {
+  font-size: clamp(3rem, 6vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+
+.app-header .subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  letter-spacing: 0.1em;
+  margin-top: 0.2rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+  padding-bottom: 0.55rem;
+  max-width: 580px;
+}
+.feature-card {
+  transition: transform 0.26s ease, box-shadow 0.26s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+#startHero + .officio-purpose {
+  padding-top: 1.8rem;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+@media (max-width: 768px) {
+  .app-header .app-title {
+    font-size: 2.8rem;
+  }
+  .app-header .subtitle {
+    font-size: 1rem;
+  }
+}
+/* =====================================================
+   OFFICIO | TOOL GRID SPACING
+   ===================================================== */
+
+/* Falls feature-grid ein Grid ist */
+#featureGrid {
+    gap: 0.5cm;
+}
+
+/* Fallback, falls kein Grid/Flex genutzt wird */
+.feature-card + .feature-card {
+    margin-top: 1cm;
+}
+
+/* =====================================================
+   END TOOL GRID SPACING
+   ===================================================== */
+.feature-card {
+  cursor: pointer;
+}
+
+.feature-card:hover {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.15),
+              0 10px 25px rgba(0,0,0,0.25);
+}
+.feature-card[data-tool="tool-summary-text"] {
+  border: 1px solid rgba(255,255,255,0.25);
+}
+/* =====================================================
+   OFFICIO | TOOL GRID SPACING – REDUCED
+   ===================================================== */
+
+#featureGrid {
+    gap: 0.2cm;   /* vorher ~1cm → jetzt kompakter */
+}
+
+/* Falls der Fallback greift */
+.feature-card + .feature-card {
+    margin-top: 0.6cm;
+}
+
+/* =====================================================
+   END TOOL GRID SPACING – REDUCED
    ===================================================== */
