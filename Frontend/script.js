@@ -2526,3 +2526,331 @@ document.addEventListener("click", e => {
     }
   });
 })();
+/* ==================================================
+   OFFICIO – TRANSLATE TOOL LANGUAGE (APPEND-ONLY)
+   Schema: IDENTISCH zu Summary / Email
+================================================== */
+
+(function () {
+  const translations = {
+    de: {
+      cardTitle: "🌍 Text übersetzen",
+      cardDesc: "Texte in andere Sprachen übersetzen.",
+      title: "Text übersetzen",
+      input: "Text hier einfügen…",
+      target: "Zielsprache",
+      style: "Stil",
+      button: "Übersetzen",
+      back: "← Zur Startseite"
+    },
+    en: {
+      cardTitle: "🌍 Translate text",
+      cardDesc: "Translate text into other languages.",
+      title: "Translate text",
+      input: "Enter text to translate…",
+      target: "Target language",
+      style: "Style",
+      button: "Translate",
+      back: "← Back to start"
+    },
+    fr: {
+      cardTitle: "🌍 Traduire un texte",
+      cardDesc: "Traduire des textes dans d’autres langues.",
+      title: "Traduire un texte",
+      input: "Entrez le texte à traduire…",
+      target: "Langue cible",
+      style: "Style",
+      button: "Traduire",
+      back: "← Retour à l’accueil"
+    }
+  };
+
+  function applyTranslateToolLanguage(lang) {
+    const t = translations[lang];
+    if (!t) return;
+
+    /* ---------- FEATURE CARD ---------- */
+    const card = document.querySelector(
+      '.feature-card[data-tool="tool-translate"]'
+    );
+    if (card) {
+      const h3 = card.querySelector("h3");
+      const p = card.querySelector("p");
+      if (h3) h3.textContent = t.cardTitle;
+      if (p) p.textContent = t.cardDesc;
+    }
+
+    /* ---------- TOOL SECTION ---------- */
+    const section = document.getElementById("tool-translate");
+    if (!section) return;
+
+    // Titel
+    const h2 = section.querySelector("h2");
+    if (h2) h2.textContent = t.title;
+
+    // Input
+    const input = document.getElementById("translateInput");
+    if (input) input.placeholder = t.input;
+
+    // Labels (gleiches Pattern wie Email)
+    const labels = section.querySelectorAll("label");
+    if (labels.length >= 2) {
+      labels[0].textContent = t.target;
+      labels[1].textContent = t.style;
+    }
+
+    // Button
+    const btn = document.getElementById("translateBtn");
+    if (btn && !btn.disabled) btn.textContent = t.button;
+
+    // Back Buttons
+    document.querySelectorAll("#tool-translate .back-to-start").forEach(b => {
+      b.textContent = t.back;
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const select = document.getElementById("languageSelect");
+    if (!select) return;
+
+    // initial
+    applyTranslateToolLanguage(select.value);
+
+    // on change
+    select.addEventListener("change", e => {
+      applyTranslateToolLanguage(e.target.value);
+    });
+  });
+})();
+/* ==================================================
+   OFFICIO – TRANSLATE TOOL DROPDOWN I18N (APPEND-ONLY)
+   Schema: identisch zu anderen Tools
+================================================== */
+
+(function () {
+  const DROPDOWN_I18N = {
+    de: {
+      target: {
+        auto: "Automatisch erkennen",
+        de: "Deutsch",
+        en: "Englisch",
+        fr: "Französisch",
+        it: "Italienisch",
+        es: "Spanisch"
+      },
+      style: {
+        neutral: "Neutral",
+        formal: "Formell",
+        informal: "Informell",
+        professional: "Professionell",
+        simple: "Einfach"
+      }
+    },
+    en: {
+      target: {
+        auto: "Auto detect",
+        de: "German",
+        en: "English",
+        fr: "French",
+        it: "Italian",
+        es: "Spanish"
+      },
+      style: {
+        neutral: "Neutral",
+        formal: "Formal",
+        informal: "Informal",
+        professional: "Professional",
+        simple: "Simple"
+      }
+    },
+    fr: {
+      target: {
+        auto: "Détection automatique",
+        de: "Allemand",
+        en: "Anglais",
+        fr: "Français",
+        it: "Italien",
+        es: "Espagnol"
+      },
+      style: {
+        neutral: "Neutre",
+        formal: "Formel",
+        informal: "Informel",
+        professional: "Professionnel",
+        simple: "Simple"
+      }
+    }
+  };
+
+  function applyTranslateDropdowns(lang) {
+    const t = DROPDOWN_I18N[lang];
+    if (!t) return;
+
+    /* ---------- TARGET LANGUAGE ---------- */
+    const targetSelect = document.getElementById("translateTargetLang");
+    if (targetSelect) {
+      Array.from(targetSelect.options).forEach(opt => {
+        if (t.target[opt.value]) {
+          opt.textContent = t.target[opt.value];
+        }
+      });
+    }
+
+    /* ---------- STYLE ---------- */
+    const styleSelect = document.getElementById("translateStyle");
+    if (styleSelect) {
+      Array.from(styleSelect.options).forEach(opt => {
+        if (t.style[opt.value]) {
+          opt.textContent = t.style[opt.value];
+        }
+      });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const select = document.getElementById("languageSelect");
+    if (!select) return;
+
+    // initial
+    applyTranslateDropdowns(select.value);
+
+    // on change
+    select.addEventListener("change", e => {
+      applyTranslateDropdowns(e.target.value);
+    });
+  });
+})();
+/* ==================================================
+   OFFICIO – TRANSLATE STYLE DROPDOWN I18N (CLEAN)
+   Styles: kundenbezogen / locker / professionell
+================================================== */
+
+(function () {
+  const STYLE_I18N = {
+    de: {
+      kundenbezogen: "Kundenbezogen",
+      locker: "Locker",
+      professionell: "Professionell"
+    },
+    en: {
+      kundenbezogen: "Customer-focused",
+      locker: "Casual",
+      professionell: "Professional"
+    },
+    fr: {
+      kundenbezogen: "Orienté client",
+      locker: "Décontracté",
+      professionell: "Professionnel"
+    }
+  };
+
+  function normalize(val = "") {
+    return val
+      .toLowerCase()
+      .trim()
+      .replace(/ä/g, "a")
+      .replace(/ö/g, "o")
+      .replace(/ü/g, "u")
+      .replace(/ß/g, "ss")
+      .replace(/[^a-z]/g, "");
+  }
+
+  function applyStyleLang(lang) {
+    const map = STYLE_I18N[lang];
+    if (!map) return;
+
+    const select = document.getElementById("translateStyle");
+    if (!select) return;
+
+    Array.from(select.options).forEach(opt => {
+      const key =
+        normalize(opt.value) ||
+        normalize(opt.dataset.style) ||
+        normalize(opt.textContent);
+
+      if (map[key]) {
+        opt.textContent = map[key];
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const langSelect = document.getElementById("languageSelect");
+    if (!langSelect) return;
+
+    // initial
+    applyStyleLang(langSelect.value);
+
+    // on change
+    langSelect.addEventListener("change", e => {
+      applyStyleLang(e.target.value);
+    });
+  });
+})();
+/* ==================================================
+   OFFICIO – EMAIL STYLE DROPDOWN I18N (APPEND-ONLY)
+   Styles: kundenbezogen / locker / professionell
+================================================== */
+
+(function () {
+  const STYLE_I18N = {
+    de: {
+      kundenbezogen: "Kundenbezogen",
+      locker: "Locker",
+      professionell: "Professionell"
+    },
+    en: {
+      kundenbezogen: "Customer-focused",
+      locker: "Casual",
+      professionell: "Professional"
+    },
+    fr: {
+      kundenbezogen: "Orienté client",
+      locker: "Décontracté",
+      professionell: "Professionnel"
+    }
+  };
+
+  function normalize(val = "") {
+    return val
+      .toLowerCase()
+      .trim()
+      .replace(/ä/g, "a")
+      .replace(/ö/g, "o")
+      .replace(/ü/g, "u")
+      .replace(/ß/g, "ss")
+      .replace(/[^a-z]/g, "");
+  }
+
+  function applyEmailStyleLang(lang) {
+    const map = STYLE_I18N[lang];
+    if (!map) return;
+
+    const select = document.getElementById("emailStyle");
+    if (!select) return;
+
+    Array.from(select.options).forEach(opt => {
+      const key =
+        normalize(opt.value) ||
+        normalize(opt.dataset.style) ||
+        normalize(opt.textContent);
+
+      if (map[key]) {
+        opt.textContent = map[key];
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const langSelect = document.getElementById("languageSelect");
+    if (!langSelect) return;
+
+    // initial
+    applyEmailStyleLang(langSelect.value);
+
+    // on change
+    langSelect.addEventListener("change", e => {
+      applyEmailStyleLang(e.target.value);
+    });
+  });
+})();
