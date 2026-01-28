@@ -1,22 +1,21 @@
 from fastapi import FastAPI, UploadFile, File, Form
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from ai_client import call_ai
 from ai_config import ROLE
 
-import os
 import re
 import io
 from docx import Document
 from pypdf import PdfReader
 
-# 🔥 BEWEIS: Datei wird geladen
+# 🔥 DEBUG
 print("🔥 MAIN.PY GELADEN")
 
 app = FastAPI(title="Officio AI")
 
-# ================= ROOT / HEALTH CHECK =================
+# ================= ROOT / HEALTH =================
 
 @app.get("/")
 def root():
@@ -25,7 +24,8 @@ def root():
         "service": "Officio AI"
     }
 
-# ========= CORS =========
+# ================= CORS =================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,7 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ========= MODELS =========
+# ================= MODELS =================
 
 class SummaryInput(BaseModel):
     text: str
@@ -45,68 +45,61 @@ class EmailReplyInput(BaseModel):
     keywords: str
     style: str
 
-# ========= TEXT ZUSAMMENFASSEN =========
+class TranslateInput(BaseModel):
+    text: str
+    target_lang: str
+    style: str
+    context: str | None = None
+
+# ================= TEXT SUMMARY =================
 
 @app.post("/summarize")
 def summarize(input: SummaryInput):
-    print("📥 /summarize AUFGERUFEN")
+    print("📥 /summarize")
 
     focus_block = ""
-    technical_rules = ""
+    rules = ""
 
-    if input.focus and input.focus.strip():
-        focus_block = f"""
-BENUTZER-VORGABEN (STRIKT):
-{input.focus}
-"""
+    if input.focus:
+        focus_block = f"\nBENUTZER-VORGABEN:\n{input.focus}"
 
-        match = re.search(r'(\d+)\s*satz', input.focus.lower())
+        match = re.search(r"(\d+)\s*satz", input.focus.lower())
         if match:
-            max_sentences = match.group(1)
-            technical_rules += f"""
-TECHNISCHE REGEL:
-Maximal {max_sentences} vollständige Sätze.
-"""
+            rules += f"\nMaximal {match.group(1)} vollständige Sätze."
 
         if "bullet" in input.focus.lower() or "stichpunkt" in input.focus.lower():
-            technical_rules += """
-FORMAT-REGEL:
-Nur Bulletpoints.
-"""
+            rules += "\nNur Bulletpoints."
 
     prompt = f"""
 Du bist ein sachlicher, präziser Büroassistent.
 
 AUFGABE:
 Fasse den folgenden Text zusammen.
-
 {focus_block}
-{technical_rules}
+{rules}
 
 TEXT:
 {input.text}
 """.strip()
 
     try:
-        print("🤖 OpenAI REQUEST (TEXT)")
         result = call_ai(ROLE, prompt)
-        print("✅ OpenAI RESPONSE ERHALTEN")
         return {"result": result}
     except Exception as e:
-        print("❌ FEHLER summarize:", e)
+        print("❌ summarize:", e)
         return {"result": "❌ Fehler bei der Text-Zusammenfassung."}
 
-# ========= DATEI ZUSAMMENFASSEN =========
+# ================= FILE SUMMARY =================
 
 @app.post("/summarize-file")
 async def summarize_file(
     file: UploadFile = File(...),
     focus: str = Form("")
 ):
-    print("📥 /summarize-file AUFGERUFEN")
+    print("📥 /summarize-file")
 
-    filename = file.filename.lower()
     contents = await file.read()
+    filename = file.filename.lower()
     text = ""
 
     try:
@@ -116,8 +109,9 @@ async def summarize_file(
 
         elif filename.endswith(".pdf"):
             reader = PdfReader(io.BytesIO(contents))
-            pages = [p.extract_text() for p in reader.pages if p.extract_text()]
-            text = "\n".join(pages)
+            text = "\n".join(
+                p.extract_text() for p in reader.pages if p.extract_text()
+            )
 
         else:
             return {"result": "❌ Dateityp nicht unterstützt."}
@@ -125,18 +119,7 @@ async def summarize_file(
         if not text.strip():
             return {"result": "❌ Datei enthält keinen lesbaren Text."}
 
-        focus_block = ""
-        technical_rules = ""
-
-        if focus.strip():
-            focus_block = f"\nBENUTZER-VORGABEN:\n{focus}"
-
-            match = re.search(r'(\d+)\s*satz', focus.lower())
-            if match:
-                technical_rules += f"\nMaximal {match.group(1)} Sätze."
-
-            if "bullet" in focus.lower() or "stichpunkt" in focus.lower():
-                technical_rules += "\nNur Bulletpoints."
+        focus_block = f"\nBENUTZER-VORGABEN:\n{focus}" if focus else ""
 
         prompt = f"""
 Du bist ein sachlicher, präziser Büroassistent.
@@ -144,27 +127,23 @@ Du bist ein sachlicher, präziser Büroassistent.
 AUFGABE:
 Fasse den folgenden Text zusammen.
 {focus_block}
-{technical_rules}
 
 TEXT:
 {text}
 """.strip()
 
-        print("🤖 OpenAI REQUEST (DATEI)")
         result = call_ai(ROLE, prompt)
-        print("✅ OpenAI RESPONSE ERHALTEN")
-
         return {"result": result}
 
     except Exception as e:
-        print("❌ FEHLER summarize-file:", e)
+        print("❌ summarize-file:", e)
         return {"result": "❌ Fehler bei der Datei-Zusammenfassung."}
 
-# ========= EMAIL =========
+# ================= EMAIL =================
 
 @app.post("/email-reply")
 def email_reply(input: EmailReplyInput):
-    print("📥 /email-reply AUFGERUFEN")
+    print("📥 /email-reply")
 
     prompt = f"""
 Du sollst eine professionelle E-Mail-Antwort verfassen.
@@ -180,19 +159,44 @@ ORIGINAL-E-MAIL:
 """.strip()
 
     try:
-        print("🤖 OpenAI REQUEST (EMAIL)")
         result = call_ai(ROLE, prompt)
-        print("✅ OpenAI RESPONSE ERHALTEN")
         return {"result": result}
     except Exception as e:
-        print("❌ FEHLER email:", e)
+        print("❌ email:", e)
         return {"result": "❌ Fehler bei der E-Mail-Erstellung."}
 
-# ========= START =========
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8000))
-    )
+# ================= SMART TRANSLATE =================
+
+@app.post("/translate")
+def translate(input: TranslateInput):
+    print("📥 /translate")
+
+    prompt = f"""
+Du bist ein professioneller Übersetzer für Büro- und Geschäftstexte.
+
+AUFGABE:
+Übersetze den folgenden Text vollständig und korrekt in folgende Sprache:
+{input.target_lang}
+
+STIL:
+{input.style}
+
+KONTEXT:
+{input.context or "Kein zusätzlicher Kontext"}
+
+WICHTIG:
+- Ausgangssprache automatisch erkennen
+- Keine Erklärungen
+- Keine Kommentare
+- Nur den übersetzten Text zurückgeben
+
+TEXT:
+{input.text}
+""".strip()
+
+    try:
+        result = call_ai(ROLE, prompt)
+        return {"result": result}
+    except Exception as e:
+        print("❌ translate:", e)
+        return {"result": "❌ Fehler bei der Übersetzung."}

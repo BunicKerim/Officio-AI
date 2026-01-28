@@ -2459,3 +2459,445 @@ button:active {
 .copy-output-btn.copied {
   box-shadow: 0 0 0 2px rgba(34,197,94,0.4);
 }
+/* =========================================
+   OFFICIO – LANGUAGE FLAG DISPLAY
+========================================= */
+
+.lang-flag-label {
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  opacity: 0.85;
+}
+/* =========================================
+   OFFICIO – SELECT READABILITY FIX
+========================================= */
+
+select {
+  background-color: rgba(255, 255, 255, 0.92);
+  color: #111;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
+/* Hover */
+select:hover {
+  background-color: rgba(255, 255, 255, 0.98);
+}
+
+/* Dark Mode */
+body.dark select {
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #f3f3f3;
+  border-color: rgba(255,255,255,0.2);
+}
+
+body.dark select option {
+  background-color: #1e1e1e;
+  color: #f3f3f3;
+}
+/* =========================================
+   OFFICIO – PURPLE SELECT STYLE (TRANSLATE)
+========================================= */
+
+#tool-translate select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(88, 101, 242, 0.18),
+        rgba(99, 102, 241, 0.12)
+    );
+
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: #e5e7eb;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+
+    transition: 
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+/* Hover */
+#tool-translate select:hover {
+    border-color: rgba(129, 140, 248, 0.6);
+}
+
+/* Focus */
+#tool-translate select:focus {
+    border-color: rgba(139, 92, 246, 0.9);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+
+/* Dropdown Options */
+#tool-translate select option {
+    background: #0b1020;
+    color: #e5e7eb;
+}
+
+/* Label spacing consistency */
+#tool-translate label {
+    margin-top: 14px;
+    margin-bottom: 6px;
+    display: block;
+    font-weight: 500;
+    color: #c7d2fe;
+}
+/* =========================================
+   OFFICIO – SELECT DROPDOWN ARROW (PURPLE)
+========================================= */
+
+#tool-translate select {
+    padding-right: 44px; /* Platz für Pfeil */
+    background-image:
+        linear-gradient(
+            135deg,
+            rgba(88, 101, 242, 0.18),
+            rgba(99, 102, 241, 0.12)
+        ),
+        url("data:image/svg+xml;utf8,\
+        <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23c7d2fe' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'>\
+        <polyline points='6 9 12 15 18 9'/>\
+        </svg>");
+
+    background-repeat: no-repeat;
+    background-position:
+        center,
+        right 16px center;
+
+    background-size:
+        cover,
+        14px;
+}
+
+/* Hover – Pfeil etwas heller */
+#tool-translate select:hover {
+    background-image:
+        linear-gradient(
+            135deg,
+            rgba(99, 102, 241, 0.28),
+            rgba(139, 92, 246, 0.22)
+        ),
+        url("data:image/svg+xml;utf8,\
+        <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e0e7ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'>\
+        <polyline points='6 9 12 15 18 9'/>\
+        </svg>");
+}
+
+/* Focus – klares Signal */
+#tool-translate select:focus {
+    background-image:
+        linear-gradient(
+            135deg,
+            rgba(139, 92, 246, 0.35),
+            rgba(99, 102, 241, 0.25)
+        ),
+        url("data:image/svg+xml;utf8,\
+        <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'>\
+        <polyline points='6 9 12 15 18 9'/>\
+        </svg>");
+}
+/* ===============================
+   OUTPUT BLOCK (ALL TOOLS)
+=============================== */
+
+.output-block {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 10px;
+    background: rgba(120, 90, 220, 0.08);
+    border: 1px solid rgba(120, 90, 220, 0.25);
+}
+
+.output-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    opacity: 0.8;
+}
+
+.output-content {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 14px;
+    min-height: 40px;
+}
+
+/* ===============================
+   COPY BUTTON
+=============================== */
+
+.copy-output-btn {
+    margin-top: 12px;
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #7a5cff, #9f7bff);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: none; /* JS macht sichtbar */
+}
+
+.copy-output-btn:hover {
+    opacity: 0.9;
+}
+
+/* ===============================
+   SMART TRANSLATE DROPDOWNS
+=============================== */
+
+#tool-translate select {
+    appearance: none;
+    background: linear-gradient(135deg, #6b4eff, #8f6bff);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 38px 10px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Dropdown Arrow */
+#tool-translate select {
+    background-image:
+        linear-gradient(135deg, #6b4eff, #8f6bff),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='white'%3E%3Cpath d='M4 5l3 3 3-3z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center right 12px;
+    background-size: auto, 14px;
+}
+/* ===============================
+   OUTPUT VISIBILITY FIX
+=============================== */
+
+.output-block {
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(120, 90, 220, 0.10);
+    border: 1px solid rgba(120, 90, 220, 0.35);
+}
+
+.output-content {
+    min-height: 120px;              /* 🔥 DAS war der Killer */
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 14px;
+}
+/* ===============================
+   SMART TRANSLATE – FORM FIX
+=============================== */
+
+#tool-translate label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    opacity: 0.85;
+}
+
+#tool-translate select {
+    width: 100%;
+    max-width: 420px;               /* 🔥 verhindert Balken */
+    padding: 10px 42px 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(140, 120, 255, 0.4);
+
+    background: linear-gradient(135deg, #5f46d8, #7b5cff);
+    color: #fff;
+
+    appearance: none;
+    cursor: pointer;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='white'%3E%3Cpath d='M4 5l3 3 3-3z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+#tool-translate select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(140, 120, 255, 0.4);
+}
+/* =========================================
+   EMAIL TOOL – STYLE DROPDOWN VISUELL ANGLEICHEN
+========================================= */
+
+#tool-email select {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(120, 120, 255, 0.25);
+    background: linear-gradient(
+        135deg,
+        rgba(120, 80, 255, 0.35),
+        rgba(80, 60, 200, 0.25)
+    );
+    color: #ffffff;
+    font-size: 15px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+}
+
+/* Hover & Focus */
+#tool-email select:hover,
+#tool-email select:focus {
+    border-color: rgba(140, 120, 255, 0.6);
+    outline: none;
+}
+
+/* Pfeil-Fix */
+#tool-email select option {
+    color: #000;
+}
+/* =========================================
+   EMAIL TOOL – DROPDOWN OPTIONS LESBARKEIT
+========================================= */
+
+#tool-email select option {
+    background-color: #1b1f3a;   /* dunkles Blau */
+    color: #ffffff;              /* weißer Text */
+}
+/* =========================================
+   EMAIL TOOL – DROPDOWN EXAKT WIE TEXTAREA
+========================================= */
+
+#tool-email select {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(80, 60, 200, 0.35),
+        rgba(40, 30, 120, 0.35)
+    );
+
+    border: 1px solid rgba(120, 120, 255, 0.25);
+    color: #ffffff;
+
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    cursor: pointer;
+}
+
+/* Hover / Focus exakt wie Textarea */
+#tool-email select:hover,
+#tool-email select:focus {
+    border-color: rgba(150, 140, 255, 0.6);
+    outline: none;
+}
+/* =========================================
+   EMAIL TOOL – MEHR ABSTAND UNTER STIL
+========================================= */
+
+#tool-email select {
+    margin-bottom: 28px; /* Abstand nach unten vergrößert */
+}
+/* ================================
+   OFFICIO – TRANSLATE OUTPUT STYLE
+================================ */
+
+#translateOutput {
+  width: 100%;
+  margin-top: 18px;
+  padding: 18px 20px;
+
+  min-height: 180px;
+  resize: vertical;
+
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+
+  color: #e5e7eb;
+  background: linear-gradient(
+    180deg,
+    rgba(30,41,59,0.95),
+    rgba(15,23,42,0.95)
+  );
+
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 10px 30px rgba(0,0,0,0.35);
+
+  transition: all 0.25s ease;
+}
+
+/* Fokus-Effekt */
+#translateOutput:focus {
+  outline: none;
+  border-color: rgba(59,130,246,0.6);
+  box-shadow:
+    0 0 0 3px rgba(59,130,246,0.15),
+    0 12px 35px rgba(0,0,0,0.45);
+}
+
+/* ================================
+   COPY BUTTON (TRANSLATE)
+================================ */
+
+#translateCopyBtn {
+  margin-top: 12px;
+  padding: 8px 16px;
+
+  align-self: flex-end;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #e5e7eb;
+  background: rgba(37,99,235,0.9);
+
+  border: none;
+  border-radius: 999px;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#translateCopyBtn:hover {
+  background: rgba(37,99,235,1);
+  transform: translateY(-1px);
+}
+
+#translateCopyBtn:active {
+  transform: translateY(0);
+}
+/* =========================================
+   OFFICIO – COPY BUTTON FEEDBACK
+========================================= */
+
+#translateCopyBtn {
+  transition: all 0.25s ease;
+}
+
+#translateCopyBtn.copied {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.55);
+  transform: scale(1.05);
+}

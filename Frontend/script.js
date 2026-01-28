@@ -2405,3 +2405,124 @@ document.addEventListener("click", e => {
     btn.classList.remove("copied");
   }, 400);
 });
+
+/* =========================================
+   OFFICIO – SMART TRANSLATE (SINGLE SOURCE)
+========================================= */
+(() => {
+  const btn = document.getElementById("translateBtn");
+  if (!btn) return;
+
+  // 🔥 Kill ALL old listeners
+  const cleanBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(cleanBtn, btn);
+
+  const input = document.getElementById("translateInput");
+  const targetLang = document.getElementById("translateTargetLang");
+  const style = document.getElementById("translateStyle");
+  const output = document.getElementById("translateOutput");
+  const copyBtn = document.getElementById("translateCopyBtn");
+
+  cleanBtn.addEventListener("click", async () => {
+    const text = input.value.trim();
+    if (!text) return;
+
+    cleanBtn.disabled = true;
+    cleanBtn.textContent = "Processing…";
+    output.style.display = "block";
+    output.value = "⏳ Übersetzung wird erstellt …";
+    copyBtn.style.display = "none";
+
+    const payload = {
+      text: text,
+      target_lang: targetLang.value, // ✅ MUSS so heißen
+      style: style.value,
+      context: ""
+    };
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+
+      const data = await res.json();
+      output.value = data.result;
+      copyBtn.style.display = "inline-flex";
+
+    } catch (e) {
+      console.error(e);
+      output.value = "❌ Fehler bei der Übersetzung.";
+    } finally {
+      cleanBtn.disabled = false;
+      cleanBtn.textContent = "Übersetzen";
+    }
+  });
+
+  copyBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(output.value);
+  });
+})();
+/* =========================================
+   OFFICIO – AUTO RESIZE TRANSLATE OUTPUT
+========================================= */
+
+(function () {
+  const output = document.getElementById("translateOutput");
+  if (!output) return;
+
+  function autoResize() {
+    output.style.height = "auto";
+    output.style.height = output.scrollHeight + "px";
+  }
+
+  // Resize bei jeder Inhaltsänderung
+  const observer = new MutationObserver(autoResize);
+  observer.observe(output, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+
+  // Fallback: falls value gesetzt wird
+  output.addEventListener("input", autoResize);
+
+})();
+/* =========================================
+   OFFICIO – COPY FEEDBACK (TRANSLATE OUTPUT)
+========================================= */
+(function () {
+  const copyBtn = document.getElementById("translateCopyBtn");
+  const output = document.getElementById("translateOutput");
+
+  if (!copyBtn || !output) return;
+
+  copyBtn.addEventListener("click", async () => {
+    if (!output.value.trim()) return;
+
+    try {
+      await navigator.clipboard.writeText(output.value);
+
+      const originalText = copyBtn.textContent;
+
+      // Text-Feedback
+      copyBtn.textContent = "✓ Copied to clipboard";
+      copyBtn.classList.add("copied");
+
+      // Nach kurzer Zeit zurücksetzen
+      setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.classList.remove("copied");
+      }, 1600);
+
+    } catch (err) {
+      copyBtn.textContent = "❌ Copy failed";
+      setTimeout(() => {
+        copyBtn.textContent = "Copy";
+      }, 1600);
+    }
+  });
+})();
