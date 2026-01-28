@@ -77,6 +77,7 @@
 
     <!-- TOOLS -->
     <section id="featureGrid" class="feature-grid">
+
         <div class="feature-card" data-tool="tool-summary-text">
             <h3 data-i18n="tool.text.summary.title">📝 Texte zusammenfassen</h3>
             <p data-i18n="tool.text.summary.desc">
@@ -86,16 +87,12 @@
 
         <div class="feature-card" data-tool="tool-summary">
             <h3 data-i18n="tool.summary">📄 Dateien zusammenfassen</h3>
-            <p data-i18n="tool.summary.desc">
-                Fasst Dateien strukturiert zusammen.
-            </p>
+            <p data-i18n="tool.summary.desc">Fasst Dateien strukturiert zusammen.</p>
         </div>
 
         <div class="feature-card" data-tool="tool-email">
             <h3 data-i18n="tool.email">✉️ E-Mail Antwort</h3>
-            <p data-i18n="tool.email.desc">
-                Automatisch professionelle Antworten erstellen.
-            </p>
+            <p data-i18n="tool.email.desc">Automatisch professionelle Antworten erstellen.</p>
         </div>
     </section>
 
@@ -123,9 +120,11 @@
         </button>
 
         <!-- OUTPUT -->
-        <div class="output-title" data-i18n-ux="result"></div>
-        <div id="textSummaryOutput"></div>
-        <button class="copy-output-btn" data-target="textSummaryOutput">Copy</button>
+        <div class="output-block">
+            <div class="output-title" data-i18n-ux="result">Ergebnis</div>
+            <div id="textSummaryOutput" class="output-content"></div>
+            <button class="copy-output-btn" data-target="textSummaryOutput">Copy</button>
+        </div>
     </section>
 
     <!-- SUMMARY TOOL -->
@@ -165,9 +164,11 @@
         <button id="summarizeBtn" data-i18n="summary.button">Zusammenfassen</button>
 
         <!-- OUTPUT -->
-        <div class="output-title" data-i18n-ux="result"></div>
-        <div id="output"></div>
-        <button class="copy-output-btn" data-target="output">Copy</button>
+        <div class="output-block">
+            <div class="output-title" data-i18n-ux="result">Ergebnis</div>
+            <div id="output" class="output-content"></div>
+            <button class="copy-output-btn" data-target="output">Copy</button>
+        </div>
     </section>
 
     <!-- EMAIL TOOL -->
@@ -213,9 +214,11 @@
         </button>
 
         <!-- OUTPUT -->
-        <div class="output-title" data-i18n-ux="result"></div>
-        <div id="emailOutput"></div>
-        <button class="copy-output-btn" data-target="emailOutput">Copy</button>
+        <div class="output-block">
+            <div class="output-title" data-i18n-ux="result">Ergebnis</div>
+            <div id="emailOutput" class="output-content"></div>
+            <button class="copy-output-btn" data-target="emailOutput">Copy</button>
+        </div>
     </section>
 
 </main>
