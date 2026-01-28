@@ -2322,3 +2322,79 @@ button.loading {
     background: transparent;
   }
 }
+/* =========================================
+   OFFICIO – OUTPUT PLACEHOLDER
+========================================= */
+
+.output-placeholder {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  opacity: 0.55;
+  font-style: italic;
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(255,255,255,0.12);
+}
+
+/* =========================================
+   OFFICIO – COPY BUTTON
+========================================= */
+
+.copy-output-btn {
+  margin-top: 10px;
+  align-self: flex-start;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-output-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.copy-output-btn.copied {
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+/* =========================================
+   OFFICIO – BUTTON LOADING STATE
+========================================= */
+
+button.loading {
+  pointer-events: none;
+  opacity: 0.7;
+  position: relative;
+}
+
+button.loading::after {
+  content: " ⏳";
+  font-size: 14px;
+}
+
+/* =========================================
+   OFFICIO – OUTPUT ERROR
+========================================= */
+
+.output-error {
+  color: #f87171;
+  font-weight: 500;
+}
+/* =========================================
+   OFFICIO – OUTPUT TITLE
+========================================= */
+
+.output-title {
+  margin-top: 18px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.65;
+  letter-spacing: 0.02em;
+}

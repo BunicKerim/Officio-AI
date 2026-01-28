@@ -2249,3 +2249,303 @@ function officioScrollToOutput(outputEl) {
     }, 120);
   }
 }
+/* =========================================
+   OFFICIO – OUTPUT PLACEHOLDER TOGGLE
+========================================= */
+
+function toggleOutputPlaceholder(outputEl) {
+  if (!outputEl) return;
+  const placeholder = outputEl.nextElementSibling;
+  if (!placeholder || !placeholder.classList.contains("output-placeholder")) return;
+
+  placeholder.style.display =
+    outputEl.textContent.trim() ? "none" : "block";
+}
+
+/* =========================================
+   OFFICIO – COPY BUTTON VISIBILITY
+========================================= */
+
+function toggleCopyButton(outputEl) {
+  if (!outputEl) return;
+  const btn = outputEl.parentElement.querySelector(".copy-output-btn");
+  if (!btn) return;
+
+  btn.style.display =
+    outputEl.textContent.trim() ? "inline-flex" : "none";
+}
+
+/* =========================================
+   OFFICIO – COPY FEEDBACK
+========================================= */
+
+document.addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("copy-output-btn")) return;
+
+  const btn = e.target;
+  const targetId = btn.dataset.target;
+  const output = document.getElementById(targetId);
+
+  if (!output || !output.textContent.trim()) return;
+
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+
+    const original = btn.textContent;
+    btn.textContent = "Copied ✓";
+    btn.classList.add("copied");
+
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove("copied");
+    }, 1200);
+  } catch {
+    btn.textContent = "Failed";
+    setTimeout(() => (btn.textContent = "Copy"), 1200);
+  }
+});
+
+/* =========================================
+   OFFICIO – BUTTON LOADING
+========================================= */
+
+function setButtonLoading(btn, state) {
+  if (!btn) return;
+  btn.classList.toggle("loading", state);
+  btn.disabled = state;
+}
+
+/* =========================================
+   OFFICIO – SUCCESS FEEDBACK
+========================================= */
+
+function showSuccess(btn) {
+  if (!btn) return;
+  const original = btn.textContent;
+  btn.textContent = "Done ✓";
+  setTimeout(() => {
+    btn.textContent = original;
+  }, 1200);
+}
+
+/* =========================================
+   OFFICIO – INITIAL STATE SETUP
+========================================= */
+
+window.addEventListener("load", () => {
+  document.querySelectorAll("#output, #emailOutput, #textSummaryOutput")
+    .forEach(el => {
+      toggleOutputPlaceholder(el);
+      toggleCopyButton(el);
+    });
+});
+/* =========================================
+   OFFICIO – UX I18N STRINGS
+========================================= */
+
+const OFFICIO_UX_I18N = {
+  de: {
+    copy: "Copy",
+    copied: "Copied ✓",
+    done: "Done ✓",
+    error: "Fehler bei der Verarbeitung.",
+    placeholder: "Dein Ergebnis erscheint hier.",
+    placeholderEmail: "Deine E-Mail-Antwort erscheint hier."
+  },
+  en: {
+    copy: "Copy",
+    copied: "Copied ✓",
+    done: "Done ✓",
+    error: "An error occurred during processing.",
+    placeholder: "Your result will appear here.",
+    placeholderEmail: "Your email reply will appear here."
+  },
+  fr: {
+    copy: "Copier",
+    copied: "Copié ✓",
+    done: "Terminé ✓",
+    error: "Une erreur s’est produite.",
+    placeholder: "Votre résultat apparaîtra ici.",
+    placeholderEmail: "Votre réponse e-mail apparaîtra ici."
+  }
+};
+
+function getUxLang() {
+  return (
+    document.getElementById("languageSelect")?.value ||
+    localStorage.getItem("officio-lang") ||
+    "de"
+  );
+}
+/* =========================================
+   OFFICIO – COPY FEEDBACK (I18N)
+========================================= */
+
+document.addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("copy-output-btn")) return;
+
+  const btn = e.target;
+  const output = document.getElementById(btn.dataset.target);
+  if (!output || !output.textContent.trim()) return;
+
+  const lang = getUxLang();
+  const t = OFFICIO_UX_I18N[lang];
+
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+
+    btn.textContent = t.copied;
+    btn.classList.add("copied");
+
+    setTimeout(() => {
+      btn.textContent = t.copy;
+      btn.classList.remove("copied");
+    }, 1200);
+  } catch {
+    btn.textContent = "✕";
+    setTimeout(() => (btn.textContent = t.copy), 1200);
+  }
+});
+/* =========================================
+   OFFICIO – SUCCESS FEEDBACK (I18N)
+========================================= */
+
+function showSuccess(btn) {
+  const lang = getUxLang();
+  const t = OFFICIO_UX_I18N[lang];
+  const original = t.copy;
+
+  btn.textContent = t.done;
+  setTimeout(() => {
+    btn.textContent = original;
+  }, 1200);
+}
+/* =========================================
+   OFFICIO – ERROR TEXT (I18N)
+========================================= */
+
+function showError(outputEl) {
+  const lang = getUxLang();
+  const t = OFFICIO_UX_I18N[lang];
+
+  outputEl.textContent = t.error;
+  outputEl.classList.add("output-error");
+}
+/* =========================================
+   OFFICIO – PLACEHOLDER I18N
+========================================= */
+
+function updateOutputPlaceholders() {
+  const lang = getUxLang();
+  const t = OFFICIO_UX_I18N[lang];
+
+  document.querySelectorAll(".output-placeholder").forEach(ph => {
+    const isEmail =
+      ph.previousElementSibling?.id === "emailOutput";
+
+    ph.textContent = isEmail
+      ? t.placeholderEmail
+      : t.placeholder;
+  });
+}
+
+window.addEventListener("load", updateOutputPlaceholders);
+
+document
+  .getElementById("languageSelect")
+  ?.addEventListener("change", updateOutputPlaceholders);
+/* =========================================
+   OFFICIO – COPY BUTTON LABEL I18N
+========================================= */
+
+function updateCopyButtons() {
+  const lang = getUxLang();
+  const t = OFFICIO_UX_I18N[lang];
+
+  document.querySelectorAll(".copy-output-btn").forEach(btn => {
+    btn.textContent = t.copy;
+  });
+}
+
+window.addEventListener("load", updateCopyButtons);
+document
+  .getElementById("languageSelect")
+  ?.addEventListener("change", updateCopyButtons);
+/* =========================================
+   OFFICIO – OUTPUT TITLE I18N
+========================================= */
+
+function updateOutputTitles() {
+  const lang = getUxLang();
+  const map = {
+    de: "Ergebnis",
+    en: "Result",
+    fr: "Résultat"
+  };
+
+  document.querySelectorAll("[data-i18n-ux='result']")
+    .forEach(el => el.textContent = map[lang] || map.de);
+}
+
+window.addEventListener("load", updateOutputTitles);
+document
+  .getElementById("languageSelect")
+  ?.addEventListener("change", updateOutputTitles);
+/* =========================================
+   OFFICIO – SMART DISABLED STATE
+========================================= */
+
+function bindSmartDisable(buttonId, inputs) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+
+  function update() {
+    const hasInput = inputs.some(el => {
+      if (!el) return false;
+      if (el.type === "file") return el.files?.length;
+      return el.value?.trim();
+    });
+
+    btn.disabled = !hasInput;
+    btn.title = hasInput ? "" : "Please enter text or select a file";
+  }
+
+  inputs.forEach(el => {
+    el?.addEventListener("input", update);
+    el?.addEventListener("change", update);
+  });
+
+  update();
+}
+bindSmartDisable("textSummaryBtn", [
+  document.getElementById("textSummaryInput"),
+  document.getElementById("textSummaryFocus")
+]);
+
+bindSmartDisable("summarizeBtn", [
+  document.getElementById("inputText"),
+  document.getElementById("summaryFile")
+]);
+
+bindSmartDisable("emailGenerateBtn", [
+  document.getElementById("emailOriginal"),
+  document.getElementById("emailFile"),
+  document.getElementById("emailKeywords")
+]);
+/* =========================================
+   OFFICIO – SMOOTH SCROLL OFFSET
+========================================= */
+
+function officioScrollToOutput(outputEl) {
+  if (!outputEl) return;
+
+  const y =
+    outputEl.getBoundingClientRect().top +
+    window.pageYOffset -
+    80; // feiner Abstand
+
+  window.scrollTo({
+    top: y,
+    behavior: "smooth"
+  });
+}

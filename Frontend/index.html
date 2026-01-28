@@ -77,7 +77,6 @@
 
     <!-- TOOLS -->
     <section id="featureGrid" class="feature-grid">
-
         <div class="feature-card" data-tool="tool-summary-text">
             <h3 data-i18n="tool.text.summary.title">📝 Texte zusammenfassen</h3>
             <p data-i18n="tool.text.summary.desc">
@@ -87,12 +86,16 @@
 
         <div class="feature-card" data-tool="tool-summary">
             <h3 data-i18n="tool.summary">📄 Dateien zusammenfassen</h3>
-            <p data-i18n="tool.summary.desc">Fasst Dateien strukturiert zusammen.</p>
+            <p data-i18n="tool.summary.desc">
+                Fasst Dateien strukturiert zusammen.
+            </p>
         </div>
 
         <div class="feature-card" data-tool="tool-email">
             <h3 data-i18n="tool.email">✉️ E-Mail Antwort</h3>
-            <p data-i18n="tool.email.desc">Automatisch professionelle Antworten erstellen.</p>
+            <p data-i18n="tool.email.desc">
+                Automatisch professionelle Antworten erstellen.
+            </p>
         </div>
     </section>
 
@@ -119,6 +122,8 @@
             Zusammenfassen
         </button>
 
+        <!-- OUTPUT -->
+        <div class="output-title" data-i18n-ux="result"></div>
         <div id="textSummaryOutput"></div>
         <button class="copy-output-btn" data-target="textSummaryOutput">Copy</button>
     </section>
@@ -139,7 +144,8 @@
             </div>
         </div>
 
-        <input type="file" id="summaryFile" accept=".pdf,.doc,.docx,.txt,.rtf,.eml,.msg,.html,.md" hidden>
+        <input type="file" id="summaryFile"
+               accept=".pdf,.doc,.docx,.txt,.rtf,.eml,.msg,.html,.md" hidden>
 
         <div class="file-picker">
             <button type="button" id="pickFileBtn">📂 Datei auswählen</button>
@@ -158,6 +164,8 @@
 
         <button id="summarizeBtn" data-i18n="summary.button">Zusammenfassen</button>
 
+        <!-- OUTPUT -->
+        <div class="output-title" data-i18n-ux="result"></div>
         <div id="output"></div>
         <button class="copy-output-btn" data-target="output">Copy</button>
     </section>
@@ -178,7 +186,8 @@
             </div>
         </div>
 
-        <input type="file" id="emailFile" accept=".pdf,.doc,.docx,.txt,.rtf,.eml,.msg,.html,.md" hidden>
+        <input type="file" id="emailFile"
+               accept=".pdf,.doc,.docx,.txt,.rtf,.eml,.msg,.html,.md" hidden>
 
         <div class="file-picker">
             <button type="button" id="pickEmailFileBtn">📂 Datei auswählen</button>
@@ -199,8 +208,12 @@
             <option data-i18n="email.style.professional">Professionell</option>
         </select>
 
-        <button id="emailGenerateBtn" data-i18n="email.button">Antwort generieren</button>
+        <button id="emailGenerateBtn" data-i18n="email.button">
+            Antwort generieren
+        </button>
 
+        <!-- OUTPUT -->
+        <div class="output-title" data-i18n-ux="result"></div>
         <div id="emailOutput"></div>
         <button class="copy-output-btn" data-target="emailOutput">Copy</button>
     </section>
